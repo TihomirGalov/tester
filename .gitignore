@@ -473,3 +473,6 @@ composer.lock
 *.css.map
 *.sass.map
 *.scss.map
+
+##### Environment file
+.env

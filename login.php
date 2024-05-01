@@ -1,20 +1,48 @@
 <?php
 include 'db.php';
 
-// Retrieve form data
-$username = $_POST['username'];
-$password = $_POST['password'];
+// Start the session
+session_start();
 
-// Check if user exists
-$sql = "SELECT * FROM users WHERE username='$username' AND password='$password'";
-//TODO undefined variable conn
-//$result = $conn->query($sql);
-//
-//if ($result->num_rows > 0) {
-//    echo "Login successful";
-//} else {
-//    echo "Invalid username or password";
-//}
-//
-//$conn->close();
+// Retrieve form data
+if (isset($_POST['username']) && isset($_POST['password'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    // Validate input
+    if (empty($username) || empty($password)) {
+        echo "Both username and password are required.";
+        exit;
+    }
+
+    // Hash the password
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    // Check if user exists
+    $sql = "SELECT * FROM users WHERE username=?";
+    //TODO conn is undefined (not correctly imported from db.php)
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+        // Verify the password
+        if (password_verify($password, $user['password'])) {
+            // Password is correct, so start a new session or resume the existing one
+            $_SESSION['loggedin'] = true;
+            $_SESSION['username'] = $username;
+            echo "Login successful";
+        } else {
+            echo "Invalid password";
+        }
+    } else {
+        echo "Invalid username";
+    }
+} else {
+    echo "No data received";
+}
+
+$conn->close();
 ?>

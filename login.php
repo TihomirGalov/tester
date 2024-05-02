@@ -19,7 +19,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
     // Check if user exists
-    $sql = "SELECT * FROM users WHERE username=?";
+    $sql = "SELECT * FROM User WHERE nickname=?";
     //TODO conn is undefined (not correctly imported from db.php)
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username);

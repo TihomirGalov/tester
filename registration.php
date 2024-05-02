@@ -1,30 +1,29 @@
 <?php
+global $conn;
 include 'db.php';
 
 // Start the session
 session_start();
 
 // Retrieve form data
-if (isset($_POST['username']) && isset($_POST['password'])) {
+if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['email'])) {
     $username = $_POST['username'];
-    $password = $_POST['password'];
+    $email = $_POST['email'];
+    $hashed_password = $_POST['password']; // Already hashed password received from client-side
 
     // Validate input
-    if (empty($username) || empty($password)) {
-        echo "Both username and password are required.";
+    if (empty($username) || empty($hashed_password) || empty($email)) {
+        echo "Username, email, and password are required.";
         exit;
     }
 
-    // Hash the password using PHP's built-in function
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
     // Insert user into database
-    $sql = "INSERT INTO users (username, password) VALUES (?,?)";
-    //TODO conn is undefined (not correctly imported from db.php)
+    $sql = "INSERT INTO user (nickname, email, password) VALUES (?,?,?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss", $username, $hashed_password);
+    $stmt->bind_param("sss", $username, $email, $hashed_password);
     if ($stmt->execute() === TRUE) {
-        echo "Registration successful";
+        // Redirect to index.html upon successful registration
+        header("Location: index.html");
     } else {
         echo "Error: ". $stmt->error;
     }

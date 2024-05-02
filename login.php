@@ -1,8 +1,10 @@
 <?php
+global $conn;
 include 'db.php';
 
 // Start the session
 session_start();
+session_regenerate_id(true);
 
 // Retrieve form data
 if (isset($_POST['username']) && isset($_POST['password'])) {
@@ -15,12 +17,8 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
         exit;
     }
 
-    // Hash the password
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
     // Check if user exists
-    $sql = "SELECT * FROM User WHERE nickname=?";
-    //TODO conn is undefined (not correctly imported from db.php)
+    $sql = "SELECT * FROM user WHERE nickname=?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -33,7 +31,8 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
             // Password is correct, so start a new session or resume the existing one
             $_SESSION['loggedin'] = true;
             $_SESSION['username'] = $username;
-            echo "Login successful";
+            // Redirect to index.html upon successful login
+            header("Location: index.html");
         } else {
             echo "Invalid password";
         }

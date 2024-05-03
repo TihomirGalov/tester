@@ -2,19 +2,23 @@
 global $conn;
 include 'db.php';
 
+function handleRegistrationError($errorMessage) {
+    http_response_code(400);
+    echo $errorMessage; // This will be displayed in the HTML form
+    exit;
+}
+
 // Start the session
 session_start();
-session_regenerate_id(true);
 
 // Retrieve form data
-if (isset($_POST['username']) && isset($_POST['password'])) {
+if (isset($_POST['username']) && isset($_POST['hashed_password'])) {
     $username = $_POST['username'];
-    $password = $_POST['password'];
+    $hashed_password = $_POST['hashed_password'];
 
     // Validate input
-    if (empty($username) || empty($password)) {
-        echo "Both username and password are required.";
-        exit;
+    if (empty($username) || empty($hashed_password)) {
+        handleRegistrationError("Both username and password are required.");
     }
 
     // Check if user exists
@@ -27,20 +31,20 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
         // Verify the password
-        if (password_verify($password, $user['password'])) {
+        if ($hashed_password === $user['password']) {
             // Password is correct, so start a new session or resume the existing one
-            $_SESSION['loggedin'] = true;
+            $_SESSION['loggedIn'] = true;
             $_SESSION['username'] = $username;
             // Redirect to index.html upon successful login
             header("Location: index.html");
         } else {
-            echo "Invalid password";
+            handleRegistrationError("Invalid password");
         }
     } else {
-        echo "Invalid username";
+        handleRegistrationError("Invalid username");
     }
 } else {
-    echo "No data received";
+    handleRegistrationError("No data received");
 }
 
 $conn->close();

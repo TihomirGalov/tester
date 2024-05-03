@@ -9,7 +9,7 @@
 <body>
 <div class="container">
     <h2 class="mt-5">Login</h2>
-    <form action="login.php" method="post">
+    <form id="loginForm" action="login.php" method="post">
         <div class="mb-3">
             <label for="username" class="form-label">Username:</label>
             <input type="text" class="form-control" id="username" name="username">
@@ -22,5 +22,50 @@
     </form>
     <p class="mt-3">Don't have an account? <a href="register.html">Register here</a></p>
 </div>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+
+        sha256(password).then(hashedPassword => {
+            var formData = new FormData();
+            formData.append("username", username);
+            formData.append("hashed_password", hashedPassword);
+
+            fetch("login.php", {
+                method: "POST",
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    console.log("Login successful");
+                    window.location.href = "index.html";
+                } else {
+                    console.error("Login failed");
+                    // Stay on the Login page
+                    // Parse response text to extract error messages and display them
+                    response.text().then(errorMessage => {
+                        // Display error message in an alert
+                        alert(errorMessage);
+                    });
+                }
+            }).catch(error => {
+                console.error("Error:", error);
+            });
+        });
+    });
+
+    function sha256(plainText) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(plainText);
+        return crypto.subtle.digest("SHA-256", data).then(hash => {
+            return Array.from(new Uint8Array(hash)).map(byte => {
+                return byte.toString(16).padStart(2, '0');
+            }).join('');
+        });
+    }
+</script>
 </body>
 </html>

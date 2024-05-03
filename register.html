@@ -12,11 +12,11 @@
     <form id="registrationForm" action="registration.php" method="post">
         <div class="mb-3">
             <label for="username" class="form-label">Username:</label>
-            <input type="text" class="form-control" id="username" name="username">
+            <input type="text" class="form-control" id="username" name="username" />
         </div>
         <div class="mb-3">
             <label for="email" class="form-label">Email:</label>
-            <input type="email" class="form-control" id="email" name="email">
+            <input type="email" class="form-control" id="email" name="email" />
         </div>
         <div class="mb-3">
             <label for="password" class="form-label">Password:</label>
@@ -34,13 +34,9 @@
         var password = document.getElementById("password").value;
 
         sha256(password).then(hashedPassword => {
-            // Create a new FormData object from the form
             var formData = new FormData(this);
-
-            // Add the hashed password to the form data
             formData.append("hashed_password", hashedPassword);
 
-            // Submit the form data using fetch or XMLHttpRequest
             fetch("registration.php", {
                 method: "POST",
                 body: formData
@@ -50,6 +46,12 @@
                     window.location.href = "index.html";
                 } else {
                     console.error("Registration failed");
+                    // Stay on the registration page
+                    // Parse response text to extract error messages and display them
+                    response.text().then(errorMessage => {
+                        // Display error message in an alert
+                        alert(errorMessage);
+                    });
                 }
             }).catch(error => {
                 console.error("Error:", error);

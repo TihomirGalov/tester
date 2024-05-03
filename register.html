@@ -9,7 +9,7 @@
 <body>
 <div class="container">
     <h2 class="mt-5">Register</h2>
-    <form id="registrationForm">
+    <form id="registrationForm" action="registration.php" method="post">
         <div class="mb-3">
             <label for="username" class="form-label">Username:</label>
             <input type="text" class="form-control" id="username" name="username">
@@ -29,15 +29,32 @@
 
 <script>
     document.getElementById("registrationForm").addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
 
         var password = document.getElementById("password").value;
 
-        var hashedPassword = sha256(password);
+        sha256(password).then(hashedPassword => {
+            // Create a new FormData object from the form
+            var formData = new FormData(this);
 
-        document.getElementById("password").value = hashedPassword;
+            // Add the hashed password to the form data
+            formData.append("hashed_password", hashedPassword);
 
-        this.submit();
+            // Submit the form data using fetch or XMLHttpRequest
+            fetch("registration.php", {
+                method: "POST",
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    console.log("Registration successful");
+                    window.location.href = "index.html";
+                } else {
+                    console.error("Registration failed");
+                }
+            }).catch(error => {
+                console.error("Error:", error);
+            });
+        });
     });
 
     function sha256(plainText) {

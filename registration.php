@@ -6,10 +6,10 @@ include 'db.php';
 session_start();
 
 // Retrieve form data
-if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['email'])) {
+if (isset($_POST['username']) && isset($_POST['hashed_password']) && isset($_POST['email'])) {
     $username = $_POST['username'];
     $email = $_POST['email'];
-    $hashed_password = $_POST['password']; // Already hashed password received from client-side
+    $hashed_password = $_POST['hashed_password'];
 
     // Validate input
     if (empty($username) || empty($hashed_password) || empty($email)) {
@@ -24,6 +24,7 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['emai
     if ($stmt->execute() === TRUE) {
         // Redirect to index.html upon successful registration
         header("Location: index.html");
+        exit;
     } else {
         echo "Error: ". $stmt->error;
     }

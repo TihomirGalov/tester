@@ -26,7 +26,7 @@ if (isset($_POST['username']) && isset($_POST['hashed_password']) && isset($_POS
         $usernameError = "Username, email, and password are required.";
     } else {
         // Check for existing username and email
-        $sql = "SELECT * FROM user WHERE nickname = ? OR email = ?";
+        $sql = "SELECT * FROM users WHERE nickname = ? OR email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $username, $email);
         $stmt->execute();
@@ -50,7 +50,7 @@ if (isset($_POST['username']) && isset($_POST['hashed_password']) && isset($_POS
     // Insert user if no errors
     if (empty($usernameError) && empty($emailError)) {
         // Insert user into the database
-        $sql = "INSERT INTO user (nickname, email, password) VALUES (?,?,?)";
+        $sql = "INSERT INTO users (nickname, email, password) VALUES (?,?,?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sss", $username, $email, $hashed_password);
         if ($stmt->execute() === TRUE) {

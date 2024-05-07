@@ -22,7 +22,7 @@ if (isset($_POST['username']) && isset($_POST['hashed_password'])) {
     }
 
     // Check if user exists
-    $sql = "SELECT * FROM user WHERE nickname=?";
+    $sql = "SELECT * FROM users WHERE nickname=?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();

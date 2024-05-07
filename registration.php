@@ -16,10 +16,10 @@ $usernameError = "";
 $emailError = "";
 
 // Retrieve form data
-if (isset($_POST['username']) && isset($_POST['hashed_password']) && isset($_POST['email'])) {
+if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['email'])) {
     $username = $_POST['username'];
     $email = $_POST['email'];
-    $hashed_password = $_POST['hashed_password']; // Already hashed password received from client-side
+    $hashed_password = $_POST['password']; // Already hashed password received from client-side
 
     // Validate input (server-side)
     if (empty($username) || empty($hashed_password) || empty($email)) {

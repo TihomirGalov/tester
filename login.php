@@ -12,9 +12,9 @@ function handleRegistrationError($errorMessage) {
 session_start();
 
 // Retrieve form data
-if (isset($_POST['username']) && isset($_POST['hashed_password'])) {
+if (isset($_POST['username']) && isset($_POST['password'])) {
     $username = $_POST['username'];
-    $hashed_password = $_POST['hashed_password'];
+    $hashed_password = $_POST['password'];
 
     // Validate input
     if (empty($username) || empty($hashed_password)) {

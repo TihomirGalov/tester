@@ -24,10 +24,10 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Answer`
+-- Table structure for table `answers`
 --
 
-CREATE TABLE `Answer` (
+CREATE TABLE `answers` (
   `value` text NOT NULL,
   `question_id` int(11) NOT NULL,
   `is_correct` tinyint(1) NOT NULL,
@@ -37,10 +37,10 @@ CREATE TABLE `Answer` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Comment`
+-- Table structure for table `comments`
 --
 
-CREATE TABLE `Comment` (
+CREATE TABLE `comments` (
   `question_id` int(11) NOT NULL,
   `creator_id` int(11) NOT NULL,
   `created` datetime NOT NULL DEFAULT current_timestamp(),
@@ -50,10 +50,10 @@ CREATE TABLE `Comment` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Finished Exam`
+-- Table structure for table `finished_exams`
 --
 
-CREATE TABLE `Finished Exam` (
+CREATE TABLE `finished_exams` (
   `id` int(11) NOT NULL,
   `completed_on` datetime NOT NULL DEFAULT current_timestamp(),
   `test_id` int(11) NOT NULL,
@@ -63,10 +63,10 @@ CREATE TABLE `Finished Exam` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Finished Question`
+-- Table structure for table `finished_questions`
 --
 
-CREATE TABLE `Finished Question` (
+CREATE TABLE `finished_questions` (
   `question_id` int(11) NOT NULL,
   `marked_answer` int(11) NOT NULL,
   `exam_id` int(11) NOT NULL
@@ -75,10 +75,10 @@ CREATE TABLE `Finished Question` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Question`
+-- Table structure for table `questions`
 --
 
-CREATE TABLE `Question` (
+CREATE TABLE `questions` (
   `id` int(11) NOT NULL,
   `test_id` int(11) NOT NULL,
   `description` text NOT NULL
@@ -87,10 +87,10 @@ CREATE TABLE `Question` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Test`
+-- Table structure for table `tests`
 --
 
-CREATE TABLE `Test` (
+CREATE TABLE `tests` (
   `id` int(11) NOT NULL,
   `created_by` int(11) NOT NULL,
   `created` datetime NOT NULL DEFAULT current_timestamp()
@@ -102,7 +102,7 @@ CREATE TABLE `Test` (
 -- Table structure for table `User`
 --
 
-CREATE TABLE `User` (
+CREATE TABLE `users` (
   `created` datetime NOT NULL DEFAULT current_timestamp(),
   `email` varchar(128) NOT NULL,
   `password` varchar(512) NOT NULL,
@@ -115,10 +115,10 @@ CREATE TABLE `User` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Waiting Exam`
+-- Table structure for table `waiting_exams`
 --
 
-CREATE TABLE `Waiting Exam` (
+CREATE TABLE `waiting_exams` (
   `waiting_due` datetime NOT NULL,
   `test_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL
@@ -129,96 +129,96 @@ CREATE TABLE `Waiting Exam` (
 --
 
 --
--- Indexes for table `Answer`
+-- Indexes for table `answers`
 --
-ALTER TABLE `Answer`
+ALTER TABLE `answers`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `answer_question_fk` (`question_id`);
+  ADD KEY `answers_question_id` (`question_id`);
 
 --
--- Indexes for table `Comment`
+-- Indexes for table `comments`
 --
-ALTER TABLE `Comment`
-  ADD KEY `comment_question_id` (`question_id`),
-  ADD KEY `comment_creator_id` (`creator_id`);
+ALTER TABLE `comments`
+  ADD KEY `comments_question_id` (`question_id`),
+  ADD KEY `comments_creator_id` (`creator_id`);
 
 --
--- Indexes for table `Finished Exam`
+-- Indexes for table `finished_exams`
 --
-ALTER TABLE `Finished Exam`
+ALTER TABLE `finished_exams`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `finished_exam_test_fk` (`test_id`),
-  ADD KEY `finished_exam_user_fk` (`user_id`);
+  ADD KEY `finished_exams_test_id` (`test_id`),
+  ADD KEY `finished_exams_user_id` (`user_id`);
 
 --
--- Indexes for table `Finished Question`
+-- Indexes for table `finished_questions`
 --
-ALTER TABLE `Finished Question`
-  ADD KEY `finished_question_fk` (`question_id`),
-  ADD KEY `finished_question_answer_fk` (`marked_answer`),
-  ADD KEY `finished_question_exam_fk` (`exam_id`);
+ALTER TABLE `finished_questions`
+  ADD KEY `finished_questions_question_id` (`question_id`),
+  ADD KEY `finished_questions_marked_answer_id` (`marked_answer`),
+  ADD KEY `finished_question_exam_id` (`exam_id`);
 
 --
--- Indexes for table `Question`
+-- Indexes for table `questions`
 --
-ALTER TABLE `Question`
+ALTER TABLE `questions`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `question_test_fk` (`test_id`);
+  ADD KEY `questions_test_id` (`test_id`);
 
 --
--- Indexes for table `Test`
+-- Indexes for table `tests`
 --
-ALTER TABLE `Test`
+ALTER TABLE `tests`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `test_user_fkey` (`created_by`);
+  ADD KEY `tests_user_id` (`created_by`);
 
 --
--- Indexes for table `User`
+-- Indexes for table `users`
 --
-ALTER TABLE `User`
+ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email_unique` (`email`),
   ADD UNIQUE KEY `nickname_uniq` (`nickname`);
 
 --
--- Indexes for table `Waiting Exam`
+-- Indexes for table `waiting_exams`
 --
-ALTER TABLE `Waiting Exam`
-  ADD KEY `waiting_exam_test_fk` (`test_id`),
-  ADD KEY `waiting_exam_user_id` (`user_id`);
+ALTER TABLE `waiting_exams`
+  ADD KEY `waiting_exams_test_id` (`test_id`),
+  ADD KEY `waiting_exams_user_id` (`user_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT for table `Answer`
+-- AUTO_INCREMENT for table `answers`
 --
-ALTER TABLE `Answer`
+ALTER TABLE `answers`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `Finished Exam`
+-- AUTO_INCREMENT for table `finished_exams`
 --
-ALTER TABLE `Finished Exam`
+ALTER TABLE `finished_exams`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `Question`
+-- AUTO_INCREMENT for table `questions`
 --
-ALTER TABLE `Question`
+ALTER TABLE `questions`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `Test`
+-- AUTO_INCREMENT for table `tests`
 --
-ALTER TABLE `Test`
+ALTER TABLE `tests`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `User`
+-- AUTO_INCREMENT for table `users`
 --
-ALTER TABLE `User`
+ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -226,51 +226,51 @@ ALTER TABLE `User`
 --
 
 --
--- Constraints for table `Answer`
+-- Constraints for table `answers`
 --
-ALTER TABLE `Answer`
-  ADD CONSTRAINT `answer_question_fk` FOREIGN KEY (`question_id`) REFERENCES `Question` (`id`);
+ALTER TABLE `answers`
+  ADD CONSTRAINT `FK_answers_questions` FOREIGN KEY (`question_id`) REFERENCES `questions` (`id`);
 
 --
--- Constraints for table `Comment`
+-- Constraints for table `comments`
 --
-ALTER TABLE `Comment`
-  ADD CONSTRAINT `comment_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `comment_question_id` FOREIGN KEY (`question_id`) REFERENCES `Question` (`id`);
+ALTER TABLE `comments`
+  ADD CONSTRAINT `FK_comments_users` FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_comments_questions` FOREIGN KEY (`question_id`) REFERENCES `questions` (`id`);
 
 --
--- Constraints for table `Finished Exam`
+-- Constraints for table `finished_exams`
 --
-ALTER TABLE `Finished Exam`
-  ADD CONSTRAINT `finished_exam_test_fk` FOREIGN KEY (`test_id`) REFERENCES `Test` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `finished_exam_user_fk` FOREIGN KEY (`user_id`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `finished_exams`
+  ADD CONSTRAINT `FK_finished_exams_tests` FOREIGN KEY (`test_id`) REFERENCES `tests` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_finished_exams_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `Finished Question`
+-- Constraints for table `finished_questions`
 --
-ALTER TABLE `Finished Question`
-  ADD CONSTRAINT `finished_question_answer_fk` FOREIGN KEY (`marked_answer`) REFERENCES `Answer` (`id`),
-  ADD CONSTRAINT `finished_question_exam_fk` FOREIGN KEY (`exam_id`) REFERENCES `Finished Exam` (`id`),
-  ADD CONSTRAINT `finished_question_fk` FOREIGN KEY (`question_id`) REFERENCES `Question` (`id`);
+ALTER TABLE `finished_questions`
+  ADD CONSTRAINT `FK_finished_questions_answers` FOREIGN KEY (`marked_answer`) REFERENCES `answers` (`id`),
+  ADD CONSTRAINT `FK_finished_questions_exams` FOREIGN KEY (`exam_id`) REFERENCES `finished_exams` (`id`),
+  ADD CONSTRAINT `FK_finished_questions_questions` FOREIGN KEY (`question_id`) REFERENCES `questions` (`id`);
 
 --
--- Constraints for table `Question`
+-- Constraints for table `questions`
 --
-ALTER TABLE `Question`
-  ADD CONSTRAINT `question_test_fk` FOREIGN KEY (`test_id`) REFERENCES `Test` (`id`);
+ALTER TABLE `questions`
+  ADD CONSTRAINT `FK_questions_tests` FOREIGN KEY (`test_id`) REFERENCES `tests` (`id`);
 
 --
--- Constraints for table `Test`
+-- Constraints for table `tests`
 --
-ALTER TABLE `Test`
-  ADD CONSTRAINT `test_user_fkey` FOREIGN KEY (`created_by`) REFERENCES `User` (`id`);
+ALTER TABLE `tests`
+  ADD CONSTRAINT `FK_tests_users` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`);
 
 --
--- Constraints for table `Waiting Exam`
+-- Constraints for table `waiting_exams`
 --
-ALTER TABLE `Waiting Exam`
-  ADD CONSTRAINT `waiting_exam_test_fk` FOREIGN KEY (`test_id`) REFERENCES `Test` (`id`),
-  ADD CONSTRAINT `waiting_exam_user_id` FOREIGN KEY (`user_id`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `waiting_exams`
+  ADD CONSTRAINT `FK_waiting_exams_tests` FOREIGN KEY (`test_id`) REFERENCES `tests` (`id`),
+  ADD CONSTRAINT `FK_waiting_exams_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

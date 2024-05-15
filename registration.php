@@ -1,13 +1,7 @@
 <?php
 global $conn;
 include 'db.php'; // Include your database connection file
-
-// Function to handle errors and set HTTP response code
-function handleRegistrationError($errorMessage) {
-    http_response_code(400);
-    echo $errorMessage; // This will be displayed in the HTML form
-    exit;
-}
+include 'utilities.php';
 
 // Start the session
 session_start();

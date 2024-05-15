@@ -1,12 +1,7 @@
 <?php
 global $conn;
 include 'db.php';
-
-function handleRegistrationError($errorMessage) {
-    http_response_code(400);
-    echo $errorMessage; // This will be displayed in the HTML form
-    exit;
-}
+include 'utilities.php';
 
 // Start the session
 session_start();

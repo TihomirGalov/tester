@@ -11,14 +11,18 @@ function sha256(plainText) {
 function startEventListener(formName) {
     document.getElementById(formName).addEventListener("submit", function (event) {
         event.preventDefault();
-        const passwordFields = document.getElementsByName("password");
+        const passwordFields = document.querySelectorAll('input[type="password"]');
+        const promises = [];
 
-        for (let i = 0; i < passwordFields.length; i++) {
-            sha256(passwordFields[i].value).then(hashedPassword => {
-                passwordFields[i].value = hashedPassword;
-                event.target.submit();
+        passwordFields.forEach(field => {
+            const promise = sha256(field.value).then(hashedPassword => {
+                field.value = hashedPassword;
             });
-        }
+            promises.push(promise);
+        });
 
+        Promise.all(promises).then(() => {
+            event.target.submit();
+        });
     });
 }

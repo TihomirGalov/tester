@@ -3,38 +3,57 @@ global $conn;
 session_start();
 include 'db.php';
 
-function updateUserInfo($conn, $username, $email, $hashed_password) {
-    $sql = "INSERT INTO user (nickname, email, password) VALUES (?,?,?)";
+function updateUserInfo($conn, $username, $hashed_password)
+{
+    $sql = "UPDATE users SET password = ? WHERE nickname = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $username, $email, $hashed_password);
+    if (!$stmt) {
+        echo "Error preparing statement: " . $conn->error;
+        return;
+    }
+    $stmt->bind_param("ss", $hashed_password, $username);
     if ($stmt->execute() === TRUE) {
         header("Location: index.html");
         exit;
     } else {
-        echo "Error: ". $stmt->error;
+        echo "Error executing statement: " . $stmt->error;
     }
+    $stmt->close();
 }
 
-if (isset($_POST['username']) && isset($_POST['email']) && isset($_POST['current_password'])) {
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $current_password = $_POST['current_password'];
-    $new_password = isset($_POST['new_password']) ? $_POST['new_password'] : null;
 
-    // If the user provided a new password, update it
-    if (!empty($new_password)) {
-        //TODO current_password must be hashed
-        updateUserInfo($conn, $username, $email, $current_password);
-    } else {
-        //TODO new_password must be hashed
-        updateUserInfo($conn, $username, $email, $new_password);
+$username = $_POST['username'];
+$email = $_POST['email'];
+
+// Fetch the current hashed password from the database
+$sql = "SELECT password FROM users WHERE nickname=?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+
+
+if ($result->num_rows > 0) {
+    $user = $result->fetch_assoc();
+    // Verify the password
+    if (isset($_POST['current_password'])) {
+        $current_password = $_POST['current_password'];
+        $new_password = isset($_POST['new_password']) ? $_POST['new_password'] : null;
+        if ($current_password === $user['password']) {
+            if (!empty($new_password)) {
+                $hashed_password = $new_password;
+            } else {
+                $hashed_password = $user['password'];
+            }
+
+            updateUserInfo($conn, $username, $hashed_password);
+        } else {
+            header("Location: settings.html?error=incorrect_password");
+            exit;
+        }
     }
 
-    header("Location: index.html");
-    exit;
-} else {
-    // Redirect back to the settings page with an error message
-    header("Location: settings.html?error=1");
-    exit;
+    updateUserInfo($conn, $username, $user['password']);
 }
+
 ?>

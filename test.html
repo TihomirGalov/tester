@@ -6,57 +6,60 @@
     <title>Test Page</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script>
-        function generateQuestions() {
-            const numberOfQuestions = parseInt(document.getElementById('numQuestions').value);
-            const questionsContainer = document.getElementById('questionsContainer');
-            questionsContainer.innerHTML = '';
+        window.onload = function () {
+            // Get test with testID from the server
 
-            for (let i = 1; i <= numberOfQuestions; i++) {
-                const questionDiv = document.createElement('div');
-                questionDiv.className = 'form-group';
+            fetch(`load_test.php?test_id=${1}`)
+                .then(response => response.json())
+                .then(data => {
+                    const numberOfQuestions = data.questions.length;
+                    const questionsContainer = document.getElementById('questionsContainer');
 
-                const questionLabel = document.createElement('label');
-                questionLabel.innerText = 'Question ' + i;
+                    for (let i = 0; i <= numberOfQuestions; i++) {
+                        const questionDiv = document.createElement('div');
+                        const questionNumber = numberOfQuestions - i + 1;
+                        questionDiv.className = 'form-group';
 
-                questionDiv.appendChild(questionLabel);
+                        const questionLabel = document.createElement('label');
+                        questionLabel.innerText = `Question ${questionNumber}: ${data.questions[i].question}`;
 
-                const options = ['a', 'b', 'c', 'd'];
-                options.forEach(option => {
-                    const optionDiv = document.createElement('div');
-                    optionDiv.className = 'form-check';
+                        questionDiv.appendChild(questionLabel);
 
-                    const optionInput = document.createElement('input');
-                    optionInput.type = 'radio';
-                    optionInput.className = 'form-check-input';
-                    optionInput.name = 'question' + i;
-                    optionInput.id = 'question' + i + option;
-                    optionInput.value = option;
+                        const options = data.questions[i].answers;
+                        options.forEach(option => {
+                            const optionDiv = document.createElement('div');
+                            optionDiv.className = 'form-check';
 
-                    const optionLabel = document.createElement('label');
-                    optionLabel.className = 'form-check-label';
-                    optionLabel.htmlFor = 'question' + i + option;
-                    optionLabel.innerText = option.toUpperCase();
+                            const optionInput = document.createElement('input');
+                            optionInput.type = 'radio';
+                            optionInput.className = 'form-check-input';
+                            optionInput.name = data.questions[i].questionId;
+                            optionInput.id = data.questions[i].questionId;
+                            optionInput.value = option;
 
-                    optionDiv.appendChild(optionInput);
-                    optionDiv.appendChild(optionLabel);
-                    questionDiv.appendChild(optionDiv);
-                });
+                            const optionLabel = document.createElement('label');
+                            optionLabel.className = 'form-check-label';
+                            optionLabel.htmlFor = 'question' + questionNumber + option;
+                            optionLabel.innerText = option.toUpperCase();
 
-                questionsContainer.appendChild(questionDiv);
-            }
+                            optionDiv.appendChild(optionInput);
+                            optionDiv.appendChild(optionLabel);
+                            questionDiv.appendChild(optionDiv);
+                        });
+
+                        questionsContainer.prepend(questionDiv);
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
         }
     </script>
 </head>
 <body>
 <div class="container mt-5">
     <h1 class="mb-4">Dynamic Multiple-Choice Test Page</h1>
-    <div class="form-group">
-        <label for="numQuestions">Number of Questions</label>
-        <input type="number" id="numQuestions" class="form-control" placeholder="Enter number of questions">
-    </div>
-    <button class="btn btn-primary mb-4" onclick="generateQuestions()">Generate Questions</button>
-    <form id="questionsContainer">
+    <form id="questionsContainer" action="submit_test.php" method="post">
         <!-- Dynamic questions will be generated here -->
+        <button type="submit" class="btn btn-primary mt-3">Submit</button>
     </form>
 </div>
 

@@ -26,3 +26,8 @@ function handleRegistrationError($errorMessage) {
     echo $errorMessage; // This will be displayed in the HTML form
     exit;
 }
+
+// Function to handle empty request data
+function handleEmptyRequest() {
+    handleRegistrationError("No data received");
+}

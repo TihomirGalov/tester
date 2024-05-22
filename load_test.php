@@ -20,22 +20,22 @@ if (isset($_GET['test_id'])) {
     $stmt->close();
 
     // Retrieve answers for the questions
-    $sql = "SELECT * FROM answers WHERE question_id IN (". implode(",", array_column($questions, 'id')) .")";
+    $sql = "SELECT question_id, id, value as data FROM answers WHERE question_id IN (". implode(",", array_column($questions, 'id')) .")";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     $result = $stmt->get_result();
     $answers = $result->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
-    // Return {questions: [{questionId: 1, questions: "What is?", answers:["Answer 1", "Answer 2"]}]}
+    // Return {questions: [{questionId: 1, question: "What is?", answers:[{id: 1, answer: "A"}]}]}
     $response = [];
     foreach ($questions as $question) {
         $response[] = [
             'questionId' => $question['id'],
             'question' => $question['description'],
-            'answers' => array_column(array_filter($answers, function($answer) use ($question) {
-                return $answer['question_id'] === $question['id'];
-            }), 'value')
+            'answers' => array_values(array_filter($answers, function($answer) use ($question) {
+                return $answer['question_id'] == $question['id'];
+            }))
         ];
     }
 

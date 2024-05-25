@@ -11,7 +11,9 @@ $json_str = file_get_contents('php://input');
 $json_obj = json_decode($json_str, true);
 
 if (isset($json_obj['answers'])) {
+    $test_id = $json_obj['test_id'];
     $answers = $json_obj['answers'];
+
     $score = 0;
 
     // Validate input
@@ -36,26 +38,33 @@ if (isset($json_obj['answers'])) {
     }
 
     // Create new Finished Exam record
-    $sql = 'INSERT INTO finished_exams (user_id, test_id, score) VALUES (?, ?, ?)';
+    //TODO add score in the finished_exams table
+    $sql = 'INSERT INTO finished_exams (user_id, test_id) VALUES (?, ?)';
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('iii', $_SESSION['user_id'], $_SESSION['test_id']);
+    $stmt->bind_param('ii', $_SESSION['user_id'], $test_id);
     $stmt->execute();
     $stmt->close();
+
+    $exam_id = $conn->insert_id;
 
     // Create finished question records
     $sql = 'INSERT INTO finished_questions (exam_id, question_id, marked_answer) VALUES (?, ?, ?)';
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('iii', $exam_id, $question_id, $marked_answer);
-    foreach ($answers as $answer) {
+
+    foreach ($answers as $marked_answer) {
+        $stmt->bind_param('iii', $exam_id, $marked_answer['question_id'], $marked_answer['id']);
         $stmt->execute();
     }
-    $stmt->close();
 
+    $stmt->close();
     // Store the score in the session
     $_SESSION['score'] = $score;
-    echo json_encode(['score' => $score]);
+//    echo json_encode(['score' => $score]);
     // Redirect to the results page
+    ob_end_flush();
+
     header("Location: results.html");
+    exit;
 } else {
     handleEmptyRequest("No data received");
 }

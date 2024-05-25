@@ -48,10 +48,12 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['emai
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sss", $username, $email, $hashed_password);
         if ($stmt->execute() === TRUE) {
+            $user_id = $conn->insert_id;
             // Set session variables to indicate user is logged in
             $_SESSION['username'] = $username;
             error_log("Logged in is set ");
             $_SESSION['loggedin'] = true;
+            $_SESSION['user_id'] = $user_id;
 
             // Redirect to index.html upon successful registration
             header("Location: index.html");

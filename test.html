@@ -6,6 +6,13 @@
     <title>Test Page</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="testManager.js"></script>
+    <?php
+        session_start();
+        if(!isset($_SESSION['loggedIn']) || !$_SESSION['loggedIn'] || !$_SESSION['user_id']) {
+            header("Location: login.html");
+            exit();
+        }
+    ?>
 </head>
 <body onload="loadTest(); submitTest()">
 <div class="container mt-5">

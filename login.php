@@ -17,7 +17,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     }
 
     // Check if user exists
-    $sql = "SELECT password FROM users WHERE nickname=?";
+    $sql = "SELECT id, password FROM users WHERE nickname=?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -30,6 +30,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
             // Password is correct, so start a new session or resume the existing one
             $_SESSION['loggedIn'] = true;
             $_SESSION['username'] = $username;
+            $_SESSION['user_id'] = $user['id'];
             // Redirect to index.html upon successful login
             header("Location: index.html");
         } else {

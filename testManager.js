@@ -50,14 +50,19 @@ function submitTest() {
 
         const formData = new FormData(event.target);
 
-        const data = Array.from(formData.entries()).reduce((obj, [key, value]) => {
-            if (!obj.answers) {
-                obj.answers = {[key]: value};
-            } else {
-                obj.answers[key] = value;
-            }
-            return obj;
-        }, {});
+        const data = {
+            test_id: new URLSearchParams(window.location.search).get('test_id'),
+            answers: Array.from(formData.entries()).reduce((obj, [key, value]) => {
+                if (!obj[key]) {
+                    obj[key] = value;
+                } else if (Array.isArray(obj[key])) {
+                    obj[key].push(value);
+                } else {
+                    obj[key] = [obj[key], value];
+                }
+                return obj;
+            }, {})
+        };
         console.log(data);
 
         fetch('submit_test.php', {
@@ -72,9 +77,10 @@ function submitTest() {
             }
             return response.json();
         }).then(data => {
-            // handle response data
-        }).catch(error => {
-            console.error('Error:', error);
-        });
+            console.log('Success:', data);
+        })
+        // }).catch(error => {
+        //     console.error('Error:', error);
+        // });
     });
 }

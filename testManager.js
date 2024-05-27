@@ -1,5 +1,18 @@
 function createAndLoadTest() {
-    fetch('fetch_test.php')
+    const fileInput = document.getElementById('csvFileInput');
+    const file = fileInput.files[0];
+    if (!file) {
+        alert('Please select a CSV file.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('csvFile', file);
+
+    fetch('fetch_test.php', {
+        method: 'POST',
+        body: formData
+    })
         .then(response => response.json())
         .then(data => {
             if (data.test_id) {
@@ -8,7 +21,7 @@ function createAndLoadTest() {
                 console.error('Error creating test:', data.error);
             }
         })
-        .catch(error => console.error('Error creating test:', error));
+        // .catch(error => console.error('Error creating test:', error));
 }
 
 function loadTest() {
@@ -55,7 +68,7 @@ function loadTest() {
                     questionDiv.appendChild(optionDiv);
                 });
 
-                questionsContainer.prepend(questionDiv);
+                questionsContainer.appendChild(questionDiv);
             }
         })
         .catch(error => console.error('Error fetching data:', error));

@@ -1,5 +1,22 @@
+function createAndLoadTest() {
+    fetch('fetch_test.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.test_id) {
+                window.location.href = `test.html?test_id=${data.test_id}`;
+            } else {
+                console.error('Error creating test:', data.error);
+            }
+        })
+        .catch(error => console.error('Error creating test:', error));
+}
+
 function loadTest() {
     const testId = new URLSearchParams(window.location.search).get('test_id');
+    if (!testId) {
+        return;
+    }
+
     fetch(`load_test.php?test_id=${testId}`)
         .then(response => response.json())
         .then(data => {
@@ -8,7 +25,7 @@ function loadTest() {
 
             for (let i = 0; i < numberOfQuestions; i++) {
                 const questionDiv = document.createElement('div');
-                const questionNumber = numberOfQuestions - i;
+                const questionNumber = i + 1;
                 questionDiv.className = 'form-group';
 
                 const questionLabel = document.createElement('label');
@@ -25,12 +42,12 @@ function loadTest() {
                     optionInput.type = 'radio';
                     optionInput.className = 'form-check-input';
                     optionInput.name = `${data.questions[i].questionId}`;
-                    optionInput.id = data.questions[i].questionId;
+                    optionInput.id = `${data.questions[i].questionId}_${option.id}`;
                     optionInput.value = option.id;
 
                     const optionLabel = document.createElement('label');
                     optionLabel.className = 'form-check-label';
-                    optionLabel.htmlFor = 'question' + questionNumber;
+                    optionLabel.htmlFor = `${data.questions[i].questionId}_${option.id}`;
                     optionLabel.innerText = option.data;
 
                     optionDiv.appendChild(optionInput);
@@ -79,8 +96,13 @@ function submitTest() {
         }).then(data => {
             console.log('Success:', data);
         })
-        // }).catch(error => {
+        //     .catch(error => {
         //     console.error('Error:', error);
         // });
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadTest();
+    submitTest();
+});

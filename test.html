@@ -5,18 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Page</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="testManager.js"></script>
     <?php
         session_start();
-        if(!isset($_SESSION['loggedIn']) || !$_SESSION['loggedIn'] || !$_SESSION['user_id']) {
+        if (!isset($_SESSION['loggedIn']) || !$_SESSION['loggedIn'] || !$_SESSION['user_id']) {
             header("Location: login.html");
             exit();
         }
     ?>
 </head>
-<body onload="loadTest(); submitTest()">
+<body>
 <div class="container mt-5">
     <h1 class="mb-4">Dynamic Multiple-Choice Test Page</h1>
+    <button class="btn btn-primary mb-4" onclick="createAndLoadTest()">Create and Load Test</button>
     <form id="questionsContainer" action="submit_test.php" method="post">
         <!-- Dynamic questions will be generated here -->
         <button type="submit" class="btn btn-primary mt-3">Submit</button>
@@ -26,5 +26,6 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="testManager.js"></script>
 </body>
 </html>

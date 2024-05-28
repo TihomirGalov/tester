@@ -11,6 +11,20 @@
             header("Location: login.html");
             exit();
         }
+
+        // Include your database connection script
+        include 'db.php';
+
+        // Fetch test IDs from the database
+        $sql = 'SELECT DISTINCT test_id FROM questions';
+        $result = $conn->query($sql);
+    $testIds = [];
+    if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+    $testIds[] = $row['test_id'];
+    }
+    }
+    $conn->close();
     ?>
 </head>
 <body>
@@ -62,6 +76,17 @@
 <div class="container mt-5">
     <h2>Section 3</h2>
     <p>This is the third section.</p>
+</div>
+
+<div class="container mt-5">
+    <h2>Available Tests</h2>
+    <?php if (!empty($testIds)): ?>
+    <?php foreach ($testIds as $testId): ?>
+    <a href="test.html?test_id=<?= $testId ?>" class="btn btn-primary mb-2">Test <?= $testId ?></a>
+    <?php endforeach; ?>
+    <?php else: ?>
+    <p>No tests available.</p>
+    <?php endif; ?>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>

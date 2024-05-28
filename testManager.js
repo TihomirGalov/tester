@@ -122,8 +122,9 @@ function createManualTest() {
     questionsContainer.innerHTML = ''; // Clear existing content
 
     const addQuestion = () => {
+        const questionCount = questionsContainer.getElementsByClassName('question-block').length;
         const questionDiv = document.createElement('div');
-        questionDiv.className = 'form-group border p-3 mb-3';
+        questionDiv.className = 'form-group border p-3 mb-3 question-block';
 
         const questionLabel = document.createElement('label');
         questionLabel.innerText = 'Question:';
@@ -145,14 +146,14 @@ function createManualTest() {
             const correctAnswerInput = document.createElement('input');
             correctAnswerInput.type = 'radio';
             correctAnswerInput.className = 'form-check-input mr-2'; // Set margin-right for spacing
-            correctAnswerInput.name = `correct_answers[${questionsContainer.children.length}]`; // Group radio buttons per question
+            correctAnswerInput.name = `correct_answers[${questionCount}]`; // Group radio buttons per question
             correctAnswerInput.value = i;
             answerDiv.appendChild(correctAnswerInput);
 
             const answerInput = document.createElement('input');
             answerInput.type = 'text';
             answerInput.className = 'form-control';
-            answerInput.name = `answers[${questionsContainer.children.length}][${i}]`; // Use nested array for question and answer
+            answerInput.name = `answers[${questionCount}][${i}]`; // Use nested array for question and answer
             answerDiv.appendChild(answerInput);
 
             answersDiv.appendChild(answerDiv);
@@ -165,7 +166,6 @@ function createManualTest() {
     // Add a question when the page loads
     addQuestion();
 
-    //TODO the button should appear below the questions
     // Add "Add Question" button
     const addButton = document.createElement('button');
     addButton.type = 'button';
@@ -185,7 +185,6 @@ function createManualTest() {
     questionsContainer.appendChild(saveButton);
 }
 
-//TODO saving manual test does not work
 function saveManualTest() {
     const questionsContainer = document.getElementById('questionsContainer');
     const formData = new FormData(questionsContainer);
@@ -203,6 +202,7 @@ function saveManualTest() {
                 isValid = false;
                 alert('Please fill in all questions.');
             }
+            // console.log("question: ", value)
             data.questions.push(value);
         } else if (key.startsWith('answers')) {
             const [questionIndex, answerIndex] = key.match(/\d+/g).map(Number);
@@ -225,7 +225,7 @@ function saveManualTest() {
     }
 
     // Check if at least one radio button is selected for each question
-    const questionIndices = Object.keys(data.correct_answers);
+    const questionIndices = Object.keys(data.answers);
     for (const index of questionIndices) {
         const radioButtonName = `correct_answers[${index}]`;
         const radioButtons = questionsContainer.querySelectorAll(`input[name="${radioButtonName}"]`);
@@ -246,7 +246,9 @@ function saveManualTest() {
     if (!isValid) {
         return;
     }
-    console.log('Data being sent:', data);
+    console.log('Data being sent:', data['questions']);
+    console.log('Data being sent:', data['answers']);
+    console.log('Data being sent:', data['correct_answers']);
     // If all data is valid, proceed with saving the test
     fetch('save_manual_test.php', {
         method: 'POST',
@@ -260,10 +262,11 @@ function saveManualTest() {
             if (data.success) {
                 window.location.href = `test.html?test_id=${data.test_id}`;
             } else {
-                console.error('Error saving test:', data.error);
+                //TODO this creates a problem
+                // console.error('Error saving test:', data.error);
             }
         })
-        .catch(error => console.error('Error saving test:', error));
+        // .catch(error => console.error('Error saving test:', error));
 }
 function showCreateTestOptions() {
     const container = document.querySelector('.container');
@@ -276,7 +279,6 @@ function showCreateTestOptions() {
         createManualTest();
     }
 }
-
 
 document.addEventListener('DOMContentLoaded', function() {
     const createTestButton = document.querySelector('button[onclick="showCreateTestOptions()"]');

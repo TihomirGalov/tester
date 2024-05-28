@@ -31,3 +31,42 @@ function handleRegistrationError($errorMessage) {
 function handleEmptyRequest() {
     handleRegistrationError("No data received");
 }
+
+function createTest($questionsData, $createdBy) {
+    global $conn;
+
+    // Create a new test
+    $stmt = $conn->prepare("INSERT INTO tests (created_by) VALUES (?)");
+    $stmt->bind_param("i", $createdBy);
+    $stmt->execute();
+    $testId = $stmt->insert_id;
+    $stmt->close();
+
+    // Prepare statements for inserting questions and answers
+    $stmtQuestion = $conn->prepare("INSERT INTO questions (description, test_id) VALUES (?, ?)");
+    $stmtAnswer = $conn->prepare("INSERT INTO answers (question_id, value, is_correct) VALUES (?, ?, ?)");
+
+    foreach ($questionsData as $questionData) {
+        $question = $questionData['question'];
+        $answers = $questionData['answers'];
+
+        // Insert the question
+        $stmtQuestion->bind_param("si", $question, $testId);
+        $stmtQuestion->execute();
+        $questionId = $stmtQuestion->insert_id;
+
+        // Insert the answers
+        foreach ($answers as $answerData) {
+            $answer = $answerData['answer'];
+            $is_correct = $answerData['is_correct'];
+            $stmtAnswer->bind_param("isi", $questionId, $answer, $is_correct);
+            $stmtAnswer->execute();
+        }
+    }
+
+    $stmtQuestion->close();
+    $stmtAnswer->close();
+
+    return $testId;
+}
+?>

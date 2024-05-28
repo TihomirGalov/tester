@@ -13,7 +13,6 @@ $json_obj = json_decode($json_str, true);
 if (isset($json_obj['answers'])) {
     $test_id = $json_obj['test_id'];
     $answers = $json_obj['answers'];
-
     $score = 0;
 
     // Validate input
@@ -26,20 +25,18 @@ if (isset($json_obj['answers'])) {
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     $result = $stmt->get_result();
-    $answers = $result->fetch_all(MYSQLI_ASSOC);
+    $correctAnswers = $result->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            if ($answers[$row['question_id']] === $row['answer']) {
-                $score++;
-            }
+    // Compare user answers with correct answers
+    foreach ($correctAnswers as $correctAnswer) {
+        if ($correctAnswer['is_correct'] == 1) {
+            $score++;
         }
     }
 
     // Create new Finished Exam record
-    //TODO add score in the finished_exams table
-    $sql = 'INSERT INTO finished_exams (user_id, test_id) VALUES (?, ?)';
+    $sql = 'INSERT INTO finished_exams (user_id, test_id) VALUES ( ?, ?)';
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('ii', $_SESSION['user_id'], $test_id);
     $stmt->execute();
@@ -51,18 +48,17 @@ if (isset($json_obj['answers'])) {
     $sql = 'INSERT INTO finished_questions (exam_id, question_id, marked_answer) VALUES (?, ?, ?)';
     $stmt = $conn->prepare($sql);
 
-    foreach ($answers as $marked_answer) {
-        $stmt->bind_param('iii', $exam_id, $marked_answer['question_id'], $marked_answer['id']);
+    foreach ($answers as $question_id => $selected_answer) {
+        $stmt->bind_param('iii', $exam_id, $question_id, $selected_answer);
         $stmt->execute();
     }
 
     $stmt->close();
+
     // Store the score in the session
     $_SESSION['score'] = $score;
-//    echo json_encode(['score' => $score]);
-    // Redirect to the results page
-    ob_end_flush();
 
+    // Redirect to the results page
     header("Location: results.html");
     exit;
 } else {

@@ -16,12 +16,13 @@
 <body>
 <div class="container mt-5">
     <h1 class="mb-4">Dynamic Multiple-Choice Test Page</h1>
+    <button class="btn btn-primary mb-4" onclick="showCreateTestOptions()">Create Test Manually</button>
     <input type="file" id="csvFileInput" class="mb-4" accept=".csv">
-    <button class="btn btn-primary mb-4" onclick="createAndLoadTest()">Create and Load Test</button>
+    <button class="btn btn-primary mb-4" onclick="createAndLoadTest()">Import CSV and Load Test</button>
     <form id="questionsContainer" action="submit_test.php" method="post">
         <!-- Dynamic questions will be generated here -->
+        <button type="submit" class="btn btn-primary mt-3 d-none" id="submitBtn">Submit</button>
     </form>
-    <button type="submit" class="btn btn-primary mt-3" id="submitBtn">Submit</button>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

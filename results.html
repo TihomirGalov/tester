@@ -20,7 +20,9 @@
         Your test has been submitted successfully!
     </div>
     <div class="alert alert-primary" role="alert">
-        Your score is: <strong class="result"></strong>
+        Your score is: <strong class="result"><?php echo isset($_SESSION['score']) ? $_SESSION['score'] : ''; ?></strong>
+        Your question id: <strong class="result"><?php echo isset($_SESSION['question_id']) ? $_SESSION['question_id'] : ''; ?></strong>
+
     </div>
     <p><a href="index.html">Go back to the dashboard page</a></p>
 </div>

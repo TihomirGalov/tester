@@ -1,7 +1,7 @@
 <?php
 global $conn;
-include 'db.php'; // Include your database connection file
-include 'utilities.php';
+include '../includes/db.php'; // Include your database connection file
+include '../includes/utilities.php';
 
 // Start the session
 session_start();

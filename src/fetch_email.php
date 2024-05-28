@@ -1,7 +1,7 @@
 <?php
 global $conn;
 session_start();
-include 'db.php';
+include '../includes/db.php';
 
 if (isset($_POST['username'])) {
     $username = $_POST['username'];

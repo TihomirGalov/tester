@@ -1,8 +1,8 @@
 <?php
 global $conn;
 session_start();
-include 'db.php';
-include 'utilities.php';
+include '../includes/db.php';
+include '../includes/utilities.php';
 
 $username = $_POST['username'];
 $email = $_POST['email'];

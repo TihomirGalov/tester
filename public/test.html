@@ -19,7 +19,7 @@
     <button class="btn btn-primary mb-4" onclick="showCreateTestOptions()">Create Test Manually</button>
     <input type="file" id="csvFileInput" class="mb-4" accept=".csv">
     <button class="btn btn-primary mb-4" onclick="createAndLoadTest()">Import CSV and Load Test</button>
-    <form id="questionsContainer" action="submit_test.php" method="post">
+    <form id="questionsContainer" action="../src/submit_test.php" method="post">
         <!-- Dynamic questions will be generated here -->
         <button type="submit" class="btn btn-primary mt-3 d-none" id="submitBtn">Submit</button>
     </form>
@@ -28,6 +28,6 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="testManager.js"></script>
+<script src="../assets/testManager.js"></script>
 </body>
 </html>

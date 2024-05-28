@@ -1,6 +1,6 @@
 <?php
 // Load.env file
-$dotenv = parse_ini_file('.env', true);
+$dotenv = parse_ini_file('../config/.env', true);
 
 // Access variables
 $servername = $dotenv['DB_SERVERNAME'];

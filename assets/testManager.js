@@ -1,36 +1,10 @@
-function createAndLoadTest() {
-    const fileInput = document.getElementById('csvFileInput');
-    const file = fileInput.files[0];
-    if (!file) {
-        alert('Please select a CSV file.');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('csvFile', file);
-
-    fetch('fetch_test.php', {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.test_id) {
-                window.location.href = `test.html?test_id=${data.test_id}`;
-            } else {
-                console.error('Error creating test:', data.error);
-            }
-        })
-        // .catch(error => console.error('Error creating test:', error));
-}
-
 function loadTest() {
     const testId = new URLSearchParams(window.location.search).get('test_id');
     if (!testId) {
         return;
     }
 
-    fetch(`load_test.php?test_id=${testId}`)
+    fetch(`../src/load_test.php?test_id=${testId}`)
         .then(response => response.json())
         .then(data => {
             const numberOfQuestions = data.questions.length;
@@ -73,7 +47,7 @@ function loadTest() {
             }
             document.getElementById('submitBtn').classList.remove('d-none');
         })
-        // .catch(error => console.error('Error fetching data:', error));
+    // .catch(error => console.error('Error fetching data:', error));
 }
 
 function submitTest() {
@@ -97,7 +71,7 @@ function submitTest() {
         };
 
         console.log(data['answers'])
-        fetch('submit_test.php', {
+        fetch('../src/submit_test.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -122,9 +96,8 @@ function createManualTest() {
     questionsContainer.innerHTML = ''; // Clear existing content
 
     const addQuestion = () => {
-        const questionCount = questionsContainer.getElementsByClassName('question-block').length;
         const questionDiv = document.createElement('div');
-        questionDiv.className = 'form-group border p-3 mb-3 question-block';
+        questionDiv.className = 'form-group border p-3 mb-3';
 
         const questionLabel = document.createElement('label');
         questionLabel.innerText = 'Question:';
@@ -146,14 +119,14 @@ function createManualTest() {
             const correctAnswerInput = document.createElement('input');
             correctAnswerInput.type = 'radio';
             correctAnswerInput.className = 'form-check-input mr-2'; // Set margin-right for spacing
-            correctAnswerInput.name = `correct_answers[${questionCount}]`; // Group radio buttons per question
+            correctAnswerInput.name = `correct_answers[${questionsContainer.children.length}]`; // Group radio buttons per question
             correctAnswerInput.value = i;
             answerDiv.appendChild(correctAnswerInput);
 
             const answerInput = document.createElement('input');
             answerInput.type = 'text';
             answerInput.className = 'form-control';
-            answerInput.name = `answers[${questionCount}][${i}]`; // Use nested array for question and answer
+            answerInput.name = `answers[${questionsContainer.children.length}][${i}]`; // Use nested array for question and answer
             answerDiv.appendChild(answerInput);
 
             answersDiv.appendChild(answerDiv);
@@ -190,7 +163,16 @@ function saveManualTest() {
     const formData = new FormData(questionsContainer);
     let isValid = true;
 
+    const testNameContainer = document.getElementById('testNameContainer');
+    const testNameInput = testNameContainer.querySelector('input[name="test_name"]');
+    const testName = testNameInput.value;
+    if (!testName.trim()) {
+        isValid = false;
+        alert('Please provide a name for the test.');
+    }
+
     const data = {
+        test_name: testName,
         questions: [],
         answers: {},
         correct_answers: {}
@@ -246,11 +228,12 @@ function saveManualTest() {
     if (!isValid) {
         return;
     }
+    console.log('Data being sent:', data['test_name']);
     console.log('Data being sent:', data['questions']);
     console.log('Data being sent:', data['answers']);
     console.log('Data being sent:', data['correct_answers']);
     // If all data is valid, proceed with saving the test
-    fetch('save_manual_test.php', {
+    fetch('../src/save_manual_test.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -266,12 +249,38 @@ function saveManualTest() {
                 // console.error('Error saving test:', data.error);
             }
         })
-        // .catch(error => console.error('Error saving test:', error));
+    // .catch(error => console.error('Error saving test:', error));
 }
+
+function createAndLoadTest() {
+    const csvFileInput = document.getElementById('csvFileInput');
+    const file = csvFileInput.files[0];
+    if (file) {
+        const formData = new FormData();
+        formData.append('csvFile', file);
+        formData.append('test_name', file.name.replace(/\.[^/.]+$/, "")); // Set test name as file name without extension
+
+        fetch('../src/fetch_test.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.test_id) {
+                    window.location.href = `../public/test.html?test_id=${data.test_id}`;
+                } else {
+                    // console.error('Error loading test:', data.error);
+                }
+            })
+            // .catch(error => console.error('Error loading test:', error));
+    }
+}
+
 function showCreateTestOptions() {
     const container = document.querySelector('.container');
 
     document.getElementById('csvFileInput').classList.add('d-none');
+    document.getElementById('testNameContainer').classList.remove('d-none');
     document.querySelector('button[onclick="createAndLoadTest()"]').classList.add('d-none');
 
     // Check if buttons already exist

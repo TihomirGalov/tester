@@ -32,7 +32,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
             $_SESSION['username'] = $username;
             $_SESSION['user_id'] = $user['id'];
             // Redirect to index.html upon successful login
-            header("Location: index.html");
+            header("Location: ../public/index.html");
         } else {
             handleRegistrationError("Invalid password");
         }

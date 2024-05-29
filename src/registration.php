@@ -56,7 +56,7 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['emai
             $_SESSION['user_id'] = $user_id;
 
             // Redirect to index.html upon successful registration
-            header("Location: index.html");
+            header("Location: ../public/index.html");
             exit;
         } else {
             echo "Error: ". $stmt->error;

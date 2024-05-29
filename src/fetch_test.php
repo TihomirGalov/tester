@@ -9,6 +9,7 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) {
         $csvFile = $_FILES['csvFile']['tmp_name'];
+        $testName = $_POST['test_name'];
         $handle = fopen($csvFile, "r");
 
         //Read the headers
@@ -29,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         fclose($handle);
 
         $createdBy = $_SESSION['user_id'];
-        $testId = createTest($questionsData, $createdBy);
+        $testId = createTest($testName, $questionsData, $createdBy);
 
         echo json_encode(['test_id' => $testId]);
     } else {

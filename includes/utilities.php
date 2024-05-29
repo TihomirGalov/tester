@@ -32,12 +32,12 @@ function handleEmptyRequest() {
     handleRegistrationError("No data received");
 }
 
-function createTest($questionsData, $createdBy) {
+function createTest($test_name, $questionsData, $createdBy) {
     global $conn;
 
     // Create a new test
-    $stmt = $conn->prepare("INSERT INTO tests (created_by) VALUES (?)");
-    $stmt->bind_param("i", $createdBy);
+    $stmt = $conn->prepare("INSERT INTO tests (name, created_by) VALUES (?, ?)");
+    $stmt->bind_param("si", $test_name,$createdBy);
     $stmt->execute();
     $testId = $stmt->insert_id;
     $stmt->close();

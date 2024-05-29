@@ -16,12 +16,12 @@
         include '../includes/db.php';
 
         // Fetch test IDs from the database
-        $sql = 'SELECT DISTINCT test_id FROM questions';
+        $sql = 'SELECT DISTINCT name FROM tests';
         $result = $conn->query($sql);
     $testIds = [];
     if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-    $testIds[] = $row['test_id'];
+    $testIds[] = $row['name'];
     }
     }
     $conn->close();

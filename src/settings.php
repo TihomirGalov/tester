@@ -30,7 +30,7 @@ if ($result->num_rows > 0) {
 
             updateUserInfo($conn, $username, $hashed_password);
         } else {
-            header("Location: settings.html?error=incorrect_password");
+            header("Location: ../public/settings.html?error=incorrect_password");
             exit;
         }
     }

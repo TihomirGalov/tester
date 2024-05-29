@@ -9,6 +9,7 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     if (isset($data['questions']) && isset($data['answers']) && isset($data['correct_answers'])) {
+        $testName = $data['test_name'];
         $questions = $data['questions'];
         $answers = $data['answers'];
         $correctAnswers = $data['correct_answers'];
@@ -28,11 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $createdBy = $_SESSION['user_id'];
-        $testId = createTest($questionsData, $createdBy);
+        $testId = createTest($testName, $questionsData, $createdBy);
 
 //        echo json_encode(['test_id' => $testId]);
         //TODO redirect does not work
-        header("Location: index.html");
+        header("Location: ../public/index.html");
     } else {
         echo json_encode(['error' => 'Invalid input data.']);
     }

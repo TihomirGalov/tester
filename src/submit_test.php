@@ -59,7 +59,7 @@ if (isset($json_obj['answers'])) {
     $_SESSION['score'] = $score;
 
     // Redirect to the results page
-    header("Location: results.html");
+    header("Location: ../public/results.html");
     exit;
 } else {
     handleEmptyRequest("No data received");

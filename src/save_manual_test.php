@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $questions = $data['questions'];
         $answers = $data['answers'];
         $correctAnswers = $data['correct_answers'];
+        $users = $data['users'];
 
         $questionsData = [];
 
@@ -30,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $createdBy = $_SESSION['user_id'];
         $testId = createTest($testName, $questionsData, $createdBy);
+        assignTest($testId, $users);
 
 //        echo json_encode(['test_id' => $testId]);
         //TODO redirect does not work

@@ -91,6 +91,7 @@ function submitTest() {
 }
 
 function createManualTest() {
+    loadAllUsers();
     const questionsContainer = document.getElementById('questionsContainer');
     questionsContainer.innerHTML = ''; // Clear existing content
 
@@ -169,9 +170,12 @@ function saveManualTest() {
         isValid = false;
         alert('Please provide a name for the test.');
     }
+    const options = document.getElementById('assignUsers').selectedOptions;
+    const users = Array.from(options).map(({ value }) => value);
 
     const data = {
         test_name: testName,
+        users: users,
         questions: [],
         answers: {},
         correct_answers: {}
@@ -227,51 +231,54 @@ function saveManualTest() {
     if (!isValid) {
         return;
     }
-    console.log('Data being sent:', data['test_name']);
-    console.log('Data being sent:', data['questions']);
-    console.log('Data being sent:', data['answers']);
-    console.log('Data being sent:', data['correct_answers']);
-    // If all data is valid, proceed with saving the test
     fetch('../src/save_manual_test.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = `test.html?test_id=${data.test_id}`;
+    }).then(response => {
+            if (response.status === 302 || response.redirected) {
+                // Manually handle the redirect
+                return response.text().then(() => {
+                    window.location.href = '../public/index.html';
+                });
             } else {
-                //TODO this creates a problem
-                // console.error('Error saving test:', data.error);
+                return response.json();
             }
-        })
+        }).catch(error => {
+            console.error('Error:', error);
+        });
     // .catch(error => console.error('Error saving test:', error));
 }
 
 function createAndLoadTest() {
+    loadAllUsers();
     const csvFileInput = document.getElementById('csvFileInput');
     const file = csvFileInput.files[0];
     if (file) {
         const formData = new FormData();
+        const options = document.getElementById('assignUsers').selectedOptions;
+        const users = Array.from(options).map(({ value }) => value);
         formData.append('csvFile', file);
         formData.append('test_name', file.name.replace(/\.[^/.]+$/, "")); // Set test name as file name without extension
+        formData.append('users', JSON.stringify(users));
 
         fetch('../src/fetch_test.php', {
             method: 'POST',
             body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.test_id) {
-                    window.location.href = `../public/test.html?test_id=${data.test_id}`;
-                } else {
-                    // console.error('Error loading test:', data.error);
-                }
-            })
-            // .catch(error => console.error('Error loading test:', error));
+        }).then(response => {
+            if (response.status === 302 || response.redirected) {
+                // Manually handle the redirect
+                return response.text().then(() => {
+                    window.location.href = '../public/index.html';
+                });
+            } else {
+                return response.json();
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+        });
     }
 }
 
@@ -286,6 +293,25 @@ function showCreateTestOptions() {
     if (!container.querySelector('.btn-secondary') || !container.querySelector('.btn-primary')) {
         createManualTest();
     }
+}
+
+function loadAllUsers() {
+    fetch('../src/load_all_users.php')
+        .then(response => response.json())
+        .then(data => {
+            //fill in the select with the users
+            const select = document.getElementById('assignUsers');
+            //Delete existing options
+            select.innerHTML = '';
+            data.users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.innerText = user.nickname;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error loading users:', error));
+
 }
 
 document.addEventListener('DOMContentLoaded', function() {

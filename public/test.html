@@ -23,6 +23,13 @@
     </div>
     <input type="file" id="csvFileInput" class="mb-4" accept=".csv">
     <button class="btn btn-primary mb-4" onclick="createAndLoadTest()">Import CSV and Load Test</button>
+    <!-- Add multiple choice drop down to assign the test to users -->
+    <div class="form-group" id="assignUsersContainer">
+        <label for="assignUsers">Assign Test to Users:</label>
+        <select class="form-control" id="assignUsers" name="assign_users" multiple>
+            <option value="">Select Users</option>
+        </select>
+    </div>
     <form id="questionsContainer" action="../src/submit_test.php" method="post">
         <!-- Dynamic questions will be generated here -->
         <button type="submit" class="btn btn-primary mt-3 d-none" id="submitBtn">Submit</button>

@@ -69,4 +69,18 @@ function createTest($test_name, $questionsData, $createdBy) {
 
     return $testId;
 }
+
+function assignTest($testId, $users) {
+    global $conn;
+
+    $stmt = $conn->prepare("INSERT INTO waiting_exams (waiting_due, test_id, user_id) VALUES (?, ?, ?)");
+
+    foreach ($users as $user) {
+        $waiting_due = date('Y-m-d H:i:s', strtotime('+1 day'));
+        $stmt->bind_param("sii", $waiting_due, $testId, $user);
+        $stmt->execute();
+    }
+
+    $stmt->close();
+}
 ?>

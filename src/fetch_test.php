@@ -31,8 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $createdBy = $_SESSION['user_id'];
         $testId = createTest($testName, $questionsData, $createdBy);
+        assignTest($testId, [$_SESSION['user_id']]);
 
-        echo json_encode(['test_id' => $testId]);
+        header("Location: ../public/index.html");
     } else {
         echo json_encode(['error' => 'File upload error.']);
     }

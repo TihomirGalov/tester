@@ -16,15 +16,15 @@
         include '../includes/db.php';
 
         // Fetch test IDs from the database
-        $sql = 'SELECT DISTINCT name FROM tests';
+        $sql = 'SELECT DISTINCT name, id FROM tests';
         $result = $conn->query($sql);
-    $testIds = [];
-    if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-    $testIds[] = $row['name'];
-    }
-    }
-    $conn->close();
+        $tests = [];
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $tests[] = $row;
+            }
+        }
+        $conn->close();
     ?>
 </head>
 <body>
@@ -32,7 +32,8 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
         <a class="navbar-brand" href="index.html">Test Generator</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -80,9 +81,9 @@
 
 <div class="container mt-5">
     <h2>Available Tests</h2>
-    <?php if (!empty($testIds)): ?>
-    <?php foreach ($testIds as $testId): ?>
-    <a href="test.html?test_id=<?= $testId ?>" class="btn btn-primary mb-2">Test <?= $testId ?></a>
+    <?php if (!empty($tests)): ?>
+    <?php foreach ($tests as $test): ?>
+    <a href="test.html?test_id=<?= $test['id'] ?>" class="btn btn-primary mb-2">Test <?= $test['name'] ?></a>
     <?php endforeach; ?>
     <?php else: ?>
     <p>No tests available.</p>

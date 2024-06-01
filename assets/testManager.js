@@ -47,7 +47,6 @@ function loadTest() {
             }
             document.getElementById('submitBtn').classList.remove('d-none');
         })
-    // .catch(error => console.error('Error fetching data:', error));
 }
 
 function submitTest() {
@@ -70,7 +69,6 @@ function submitTest() {
             }, {})
         };
 
-        console.log(data['answers'])
         fetch('../src/submit_test.php', {
             method: 'POST',
             headers: {
@@ -78,16 +76,17 @@ function submitTest() {
             },
             body: JSON.stringify(data)
         }).then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+            if (response.status === 302 || response.redirected) {
+                // Manually handle the redirect
+                return response.text().then(() => {
+                    window.location.href = '../public/results.html';
+                });
+            } else {
+                return response.json();
             }
-            return response.json();
-        }).then(data => {
-            console.log('Success:', data);
-        })
-        //     .catch(error => {
-        //     console.error('Error:', error);
-        // });
+        }).catch(error => {
+            console.error('Error:', error);
+        });
     });
 }
 

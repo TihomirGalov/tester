@@ -57,7 +57,7 @@ if (isset($json_obj['answers'])) {
 
     // Store the score in the session
     $_SESSION['score'] = $score;
-
+    $_SESSION['finished_exam_id'] = $exam_id;
     // Redirect to the results page
     header("Location: ../public/results.html", true, 302);
     exit;

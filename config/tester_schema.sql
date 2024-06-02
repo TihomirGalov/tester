@@ -126,6 +126,25 @@ CREATE TABLE `waiting_exams` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
+-- Table structure for table `reviews`
+--
+
+--
+-- Table structure for table `reviews`
+--
+
+CREATE TABLE `reviews` (
+  `id` int(11) NOT NULL,
+  `user_id` INT NOT NULL,
+  `question_id` INT NOT NULL,
+  `review` TEXT NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+
+--
 -- Indexes for dumped tables
 --
 
@@ -189,6 +208,13 @@ ALTER TABLE `waiting_exams`
   ADD KEY `waiting_exams_user_id` (`user_id`);
 
 --
+--  Indexes for table `reviews`
+--
+ALTER TABLE `reviews`
+    ADD PRIMARY KEY (`id`),
+    ADD UNIQUE KEY `unique_review` (`user_id`, `question_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -221,6 +247,12 @@ ALTER TABLE `tests`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `reviews`
+--
+ALTER TABLE `reviews`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
@@ -272,6 +304,14 @@ ALTER TABLE `tests`
 ALTER TABLE `waiting_exams`
   ADD CONSTRAINT `FK_waiting_exams_tests` FOREIGN KEY (`test_id`) REFERENCES `tests` (`id`),
   ADD CONSTRAINT `FK_waiting_exams_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `reviews`
+--
+ALTER TABLE `reviews`
+ADD CONSTRAINT `FK_reviews_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `FK_reviews_questions` FOREIGN KEY (`question_id`) REFERENCES `questions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

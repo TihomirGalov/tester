@@ -15,16 +15,27 @@
         // Include your database connection script
         include '../includes/db.php';
 
-        // Fetch test IDs from the database
-        $sql = 'SELECT DISTINCT name, id FROM tests';
-        $result = $conn->query($sql);
-        $tests = [];
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $tests[] = $row;
-            }
-        }
-        $conn->close();
+        // Fetch user ID from session
+        $user_id = $_SESSION['user_id'];
+
+        // Fetch test names and IDs from the database for the logged-in user
+        $sql = 'SELECT tests.name, tests.id
+                FROM waiting_exams
+                INNER JOIN tests ON waiting_exams.test_id = tests.id
+                WHERE waiting_exams.user_id = ?';
+
+        $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $tests = [];
+    if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+    $tests[] = $row;
+    }
+    }
+    $stmt->close();
+    $conn->close();
     ?>
 </head>
 <body>

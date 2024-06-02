@@ -231,6 +231,7 @@ function saveManualTest() {
     if (!isValid) {
         return;
     }
+    //console.error(data)
     fetch('../src/save_manual_test.php', {
         method: 'POST',
         headers: {
@@ -246,9 +247,10 @@ function saveManualTest() {
             } else {
                 return response.json();
             }
-        }).catch(error => {
-            console.error('Error:', error);
-        });
+        })
+        // .catch(error => {
+        //     console.error('Error:', error);
+        // });
     // .catch(error => console.error('Error saving test:', error));
 }
 
@@ -287,6 +289,7 @@ function showCreateTestOptions() {
 
     document.getElementById('csvFileInput').classList.add('d-none');
     document.getElementById('testNameContainer').classList.remove('d-none');
+    //document.getElementById('assignUsersContainer').classList.remove('d-none');
     document.querySelector('button[onclick="createAndLoadTest()"]').classList.add('d-none');
 
     // Check if buttons already exist

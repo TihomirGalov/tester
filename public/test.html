@@ -46,7 +46,14 @@
 <script src="../assets/testManager.js"></script>
 <script>
     function exportTest(format) {
-        const testId = 4;
+        // Get the URL parameters
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+
+        // Get the test_id parameter value
+        const testId = urlParams.get('test_id');
+
+        // Redirect to export_test.php with the test_id and format parameters
         window.location.href = `../src/export_test.php?test_id=${testId}&format=${format}`;
     }
 </script>

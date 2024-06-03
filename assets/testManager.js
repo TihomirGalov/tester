@@ -323,6 +323,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
+    const exportBtn = document.getElementById('exportBtn');
+    exportBtn.addEventListener('click', function() {
+        const testId = new URLSearchParams(window.location.search).get('test_id');
+        if (testId) {
+            window.location.href = `../src/export_test.php?test_id=${testId}`;
+        } else {
+            alert('Test ID not found');
+        }
+    });
+
     loadTest();
     submitTest();
 });

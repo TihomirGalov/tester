@@ -17,6 +17,12 @@
 <body>
 <div class="container mt-5">
     <h2>User Settings</h2>
+    <?php
+        // Check if the URL contains an error parameter
+        if (isset($_GET['error']) && $_GET['error'] === 'incorrect_password') {
+            echo '<div class="alert alert-danger" role="alert">Incorrect current password. Please try again.</div>';
+        }
+    ?>
     <form id="settingsForm" action="../src/settings.php" method="post">
         <div class="mb-3">
             <label for="username" class="form-label">Username:</label>
@@ -34,7 +40,7 @@
             <label for="new_password" class="form-label">New Password:</label>
             <input type="password" class="form-control" id="new_password" name="new_password">
         </div>
-        <button type="submit" class="btn btn-primary">Update Settings</button>
+        <button type="submit" class="btn btn-primary" id="updateSettingsBtn">Update Settings</button>
     </form>
 </div>
 <!-- Bootstrap JS (Optional, only required if you have interactive Bootstrap components) -->
@@ -43,6 +49,20 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         startEventListener('settingsForm');
+
+        // Function to check if password field is empty
+        function isPasswordFieldEmpty() {
+            const newPassword = document.getElementById('new_password').value;
+            return newPassword.trim() === '';
+        }
+
+        // Add event listener to form submission
+        document.getElementById('updateSettingsBtn').addEventListener('click', function(event) {
+            if (isPasswordFieldEmpty()) {
+                event.preventDefault(); // Prevent form submission
+                alert('Please enter a new password.'); // Alert user
+            }
+        });
 
         const usernameInput = document.getElementById('username');
         usernameInput.addEventListener('change', function() {

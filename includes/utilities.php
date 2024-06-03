@@ -12,7 +12,7 @@ function updateUserInfo($conn, $username, $hashed_password)
     }
     $stmt->bind_param("ss", $hashed_password, $username);
     if ($stmt->execute() === TRUE) {
-        header("Location: index.html");
+        header("Location: ../public/index.html");
         exit;
     } else {
         echo "Error executing statement: " . $stmt->error;

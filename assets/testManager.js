@@ -265,7 +265,6 @@ function createAndLoadTest() {
         formData.append('csvFile', file);
         formData.append('test_name', file.name.replace(/\.[^/.]+$/, "")); // Set test name as file name without extension
         formData.append('users', JSON.stringify(users));
-
         fetch('../src/fetch_test.php', {
             method: 'POST',
             body: formData
@@ -273,12 +272,12 @@ function createAndLoadTest() {
             .then(response => response.json())
             .then(data => {
                 if (data.test_id) {
-                    window.location.href = `test.html?test_id=${data.test_id}`;
+                    window.location.href = `../public/test.html?test_id=${data.test_id}`;
                 } else {
                     console.error('Error creating test:', data.error);
                 }
             })
-        // .catch(error => console.error('Error creating test:', error));
+        .catch(error => console.error('Error creating test:', error));
     }
 }
 

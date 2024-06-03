@@ -269,18 +269,16 @@ function createAndLoadTest() {
         fetch('../src/fetch_test.php', {
             method: 'POST',
             body: formData
-        }).then(response => {
-            if (response.status === 302 || response.redirected) {
-                // Manually handle the redirect
-                return response.text().then(() => {
-                    window.location.href = '../public/index.html';
-                });
-            } else {
-                return response.json();
-            }
-        }).catch(error => {
-            console.error('Error:', error);
-        });
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.test_id) {
+                    window.location.href = `test.html?test_id=${data.test_id}`;
+                } else {
+                    console.error('Error creating test:', data.error);
+                }
+            })
+        // .catch(error => console.error('Error creating test:', error));
     }
 }
 
@@ -323,16 +321,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-    const exportBtn = document.getElementById('exportBtn');
-    exportBtn.addEventListener('click', function() {
-        const testId = new URLSearchParams(window.location.search).get('test_id');
-        if (testId) {
-            window.location.href = `../src/export_test.php?test_id=${testId}`;
-        } else {
-            alert('Test ID not found');
-        }
-    });
-
     loadTest();
     submitTest();
 });

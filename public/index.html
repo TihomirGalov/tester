@@ -11,31 +11,6 @@
             header("Location: login.html");
             exit();
         }
-
-        // Include your database connection script
-        include '../includes/db.php';
-
-        // Fetch user ID from session
-        $user_id = $_SESSION['user_id'];
-
-        // Fetch test names and IDs from the database for the logged-in user
-        $sql = 'SELECT tests.name, tests.id
-                FROM waiting_exams
-                INNER JOIN tests ON waiting_exams.test_id = tests.id
-                WHERE waiting_exams.user_id = ?';
-
-        $stmt = $conn->prepare($sql);
-    $stmt->bind_param('i', $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $tests = [];
-    if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-    $tests[] = $row;
-    }
-    }
-    $stmt->close();
-    $conn->close();
     ?>
 </head>
 <body>
@@ -78,6 +53,9 @@
 <div class="container mt-5">
     <h2>Section 1</h2>
     <p>This is the first section.</p>
+
+    <!-- Include PHP file to display tests -->
+    <?php include '../src/fetch_tests.php'; ?>
 </div>
 
 <div class="container mt-5">
@@ -88,17 +66,6 @@
 <div class="container mt-5">
     <h2>Section 3</h2>
     <p>This is the third section.</p>
-</div>
-
-<div class="container mt-5">
-    <h2>Available Tests</h2>
-    <?php if (!empty($tests)): ?>
-    <?php foreach ($tests as $test): ?>
-    <a href="test.html?test_id=<?= $test['id'] ?>" class="btn btn-primary mb-2">Test <?= $test['name'] ?></a>
-    <?php endforeach; ?>
-    <?php else: ?>
-    <p>No tests available.</p>
-    <?php endif; ?>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>

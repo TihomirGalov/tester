@@ -23,7 +23,9 @@
     </div>
     <input type="file" id="csvFileInput" class="mb-4" accept=".csv">
     <button class="btn btn-primary mb-4" onclick="createAndLoadTest()">Import CSV and Load Test</button>
-    <button id="exportBtn" class="btn btn-secondary">Export Test to CSV</button>
+    <button class="btn btn-primary mr-2" onclick="exportTest('csv')">Export as CSV</button>
+    <button class="btn btn-secondary mr-2" onclick="exportTest('xml')">Export as XML</button>
+    <button class="btn btn-success" onclick="exportTest('gift')">Export as GIFT</button>
 
     <!-- Add multiple choice drop down to assign the test to users -->
     <div class="form-group" id="assignUsersContainer">
@@ -42,5 +44,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="../assets/testManager.js"></script>
+<script>
+    function exportTest(format) {
+        const testId = 4;
+        window.location.href = `../src/export_test.php?test_id=${testId}&format=${format}`;
+    }
+</script>
 </body>
 </html>

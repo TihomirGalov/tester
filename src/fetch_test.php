@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $testId = createTest($testName, $questionsData, $createdBy);
         assignTest($testId, [$_SESSION['user_id']]);
 
-        header("Location: ../public/index.html");
+        echo json_encode(['test_id' => $testId]);
     } else {
         echo json_encode(['error' => 'File upload error.']);
     }

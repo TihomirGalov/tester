@@ -96,6 +96,7 @@ function createManualTest() {
     questionsContainer.innerHTML = ''; // Clear existing content
 
     const addQuestion = () => {
+        const questionsCount = document.getElementsByClassName('form-group border p-3 mb-3').length;
         const questionDiv = document.createElement('div');
         questionDiv.className = 'form-group border p-3 mb-3';
 
@@ -119,14 +120,14 @@ function createManualTest() {
             const correctAnswerInput = document.createElement('input');
             correctAnswerInput.type = 'radio';
             correctAnswerInput.className = 'form-check-input mr-2'; // Set margin-right for spacing
-            correctAnswerInput.name = `correct_answers[${questionsContainer.children.length}]`; // Group radio buttons per question
+            correctAnswerInput.name = `correct_answers[${questionsCount}]`; // Group radio buttons per question
             correctAnswerInput.value = i;
             answerDiv.appendChild(correctAnswerInput);
 
             const answerInput = document.createElement('input');
             answerInput.type = 'text';
             answerInput.className = 'form-control';
-            answerInput.name = `answers[${questionsContainer.children.length}][${i}]`; // Use nested array for question and answer
+            answerInput.name = `answers[${questionsCount}][${i}]`; // Use nested array for question and answer
             answerDiv.appendChild(answerInput);
 
             answersDiv.appendChild(answerDiv);
@@ -134,6 +135,17 @@ function createManualTest() {
 
         questionDiv.appendChild(answersDiv);
         questionsContainer.appendChild(questionDiv);
+        const lastQuestion = document.getElementsByClassName('form-group border p-3 mb-3').length - 1;
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'btn btn-danger';
+        removeButton.innerText = 'Remove Question';
+        removeButton.onclick = () => {
+            questionsContainer.removeChild(questionDiv);
+        };
+        questionDiv.appendChild(removeButton);
+        //Append question after the lastQuestion
+        questionsContainer.insertBefore(questionDiv, questionsContainer.children[lastQuestion]);
     };
 
     // Add a question when the page loads
@@ -177,8 +189,8 @@ function saveManualTest() {
         test_name: testName,
         users: users,
         questions: [],
-        answers: {},
-        correct_answers: {}
+        answers: [],
+        correct_answers: []
     };
 
     formData.forEach((value, key) => {
@@ -195,13 +207,12 @@ function saveManualTest() {
                 isValid = false;
                 alert('Please fill in all answers.');
             }
-            if (!data.answers[questionIndex]) {
-                data.answers[questionIndex] = [];
+            if (!data.answers[data.questions.length - 1]) {
+                data.answers[data.questions.length - 1] = [];
             }
-            data.answers[questionIndex][answerIndex] = value;
+            data.answers[data.questions.length - 1][answerIndex] = value;
         } else if (key.startsWith('correct_answers')) {
-            const questionIndex = key.match(/\d+/)[0];
-            data.correct_answers[questionIndex] = value;
+            data.correct_answers[data.questions.length - 1] = value;
         }
     });
 

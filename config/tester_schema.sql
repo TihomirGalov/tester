@@ -87,12 +87,33 @@ CREATE TABLE `questions` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `questions`
+--
+
+CREATE TABLE `question_details` (
+    `id` int(11) NOT NULL,
+    `question_id` int(11) NOT NULL,
+    `timestamp` datetime NOT NULL,
+    `faculty_number` varchar(50),
+    `question_number` int(11),
+    `purpose` text NOT NULL,
+    `type` int(11) NOT NULL,
+    `correct_answer` int(11) NOT NULL,
+    `difficulty_level` int(11) NOT NULL,
+    `feedback_correct` text,
+    `feedback_incorrect` text,
+    `remarks` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tests`
 --
 
 CREATE TABLE `tests` (
   `id` int(11) NOT NULL,
-  `name` text NOT NULL,
+  `name` varchar(128) NOT NULL,
   `created_by` int(11) NOT NULL,
   `created` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -108,6 +129,7 @@ CREATE TABLE `users` (
   `email` varchar(128) NOT NULL,
   `password` varchar(512) NOT NULL,
   `nickname` varchar(128) NOT NULL,
+  `faculty_number` varchar(50),
   `id` int(11) NOT NULL,
   `can_create_test` tinyint(1) NOT NULL DEFAULT 1,
   `avatar` blob DEFAULT NULL
@@ -124,10 +146,6 @@ CREATE TABLE `waiting_exams` (
   `test_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Table structure for table `reviews`
---
 
 --
 -- Table structure for table `reviews`
@@ -186,6 +204,14 @@ ALTER TABLE `questions`
   ADD KEY `questions_test_id` (`test_id`);
 
 --
+-- Indexes for table `question_details`
+--
+
+ALTER TABLE `question_details`
+    ADD PRIMARY KEY (`id`),
+    ADD KEY `question_details_question_id` (`question_id`);
+
+--
 -- Indexes for table `tests`
 --
 ALTER TABLE `tests`
@@ -235,6 +261,9 @@ ALTER TABLE `finished_exams`
 --
 ALTER TABLE `questions`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `question_details`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tests`
@@ -291,6 +320,13 @@ ALTER TABLE `finished_questions`
 --
 ALTER TABLE `questions`
   ADD CONSTRAINT `FK_questions_tests` FOREIGN KEY (`test_id`) REFERENCES `tests` (`id`);
+
+--
+-- Constraints for table `question_details`
+--
+
+ALTER TABLE `question_details`
+  ADD CONSTRAINT `FK_question_details_question` FOREIGN KEY (`question_id`) REFERENCES `questions`(`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `tests`

@@ -3,6 +3,7 @@ function loadTest() {
     if (!testId) {
         return;
     }
+    document.getElementById('create-test-controls').innerHTML = ''; // Clear existing content
 
     fetch(`../src/load_test.php?test_id=${testId}`)
         .then(response => response.json())
@@ -43,7 +44,7 @@ function loadTest() {
                     questionDiv.appendChild(optionDiv);
                 });
 
-                questionsContainer.appendChild(questionDiv);
+                questionsContainer.insertBefore(questionDiv, questionsContainer.children[i]);
             }
             document.getElementById('submitBtn').classList.remove('d-none');
         })

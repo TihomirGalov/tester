@@ -87,7 +87,7 @@ CREATE TABLE `questions` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `questions`
+-- Table structure for table `question_details`
 --
 
 CREATE TABLE `question_details` (

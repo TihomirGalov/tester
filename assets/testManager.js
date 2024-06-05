@@ -287,11 +287,18 @@ function createAndLoadTest() {
                     window.location.href = `../public/test.html?test_id=${data.test_id}`;
                 } else {
                     console.error('Error creating test:', data.error);
+                    alert('Error creating test: ' + data.error);
                 }
             })
-        .catch(error => console.error('Error creating test:', error));
+            .catch(error => {
+                console.error('Error creating test:', error);
+                alert('Error creating test: ' + error.message);
+            });
+    } else {
+        alert('Please select a CSV file to upload.');
     }
 }
+
 
 function showCreateTestOptions() {
     const container = document.querySelector('.container');

@@ -10,14 +10,15 @@ $usernameError = "";
 $emailError = "";
 
 // Retrieve form data
-if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['email'])) {
+if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['email']) && isset($_POST['faculty_number'])) {
     $username = $_POST['username'];
     $email = $_POST['email'];
     $hashed_password = $_POST['password']; // Already hashed password received from client-side
+    $faculty_number = $_POST['faculty_number'];
 
     // Validate input (server-side)
-    if (empty($username) || empty($hashed_password) || empty($email)) {
-        $usernameError = "Username, email, and password are required.";
+    if (empty($username) || empty($hashed_password) || empty($email) || empty($faculty_number)) {
+        $usernameError = "Username, email, password, and faculty number are required.";
     } else {
         // Check for existing username and email
         $sql = "SELECT * FROM users WHERE nickname = ? OR email = ?";
@@ -35,7 +36,6 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['emai
                 if ($row["email"] === $email) {
                     $emailError = "Email already exists.";
                     handleRegistrationError($emailError);
-
                 }
             }
         }
@@ -44,14 +44,13 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['emai
     // Insert user if no errors
     if (empty($usernameError) && empty($emailError)) {
         // Insert user into the database
-        $sql = "INSERT INTO users (nickname, email, password) VALUES (?,?,?)";
+        $sql = "INSERT INTO users (nickname, email, password, faculty_number) VALUES (?,?,?,?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sss", $username, $email, $hashed_password);
+        $stmt->bind_param("ssss", $username, $email, $hashed_password, $faculty_number);
         if ($stmt->execute() === TRUE) {
             $user_id = $conn->insert_id;
             // Set session variables to indicate user is logged in
             $_SESSION['username'] = $username;
-            error_log("Logged in is set ");
             $_SESSION['loggedin'] = true;
             $_SESSION['user_id'] = $user_id;
 

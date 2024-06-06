@@ -78,6 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $answerStmt->close();
         fclose($handle);
 
+        $users = json_decode($_POST['users']);
+        assignTest($testId, $users);
+
         echo json_encode(['test_id' => $testId]);
     } else {
         echo json_encode(['error' => 'File upload error.']);

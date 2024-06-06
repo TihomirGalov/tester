@@ -77,7 +77,8 @@ function assignTest($testId, $users) {
 
     foreach ($users as $user) {
         $waiting_due = date('Y-m-d H:i:s', strtotime('+1 day'));
-        $stmt->bind_param("sii", $waiting_due, $testId, $user);
+        $userId = intval($user);
+        $stmt->bind_param("sii", $waiting_due, $testId, $userId);
         $stmt->execute();
     }
 

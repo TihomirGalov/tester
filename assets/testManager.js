@@ -1,9 +1,10 @@
 function loadTest() {
     const testId = new URLSearchParams(window.location.search).get('test_id');
     if (!testId) {
+        document.getElementById('export-buttons').innerHTML = ''; // Clear existing content
         return;
     }
-    // document.getElementById('create-test-controls').innerHTML = ''; // Clear existing content
+    document.getElementById('create-test-controls').innerHTML = ''; // Clear existing content
 
     fetch(`../src/load_test.php?test_id=${testId}`)
         .then(response => response.json())
@@ -91,63 +92,66 @@ function submitTest() {
     });
 }
 
+function addQuestion(question = null, answers = null) {
+    const questionsContainer = document.getElementById('questionsContainer');
+    const questionsCount = document.getElementsByClassName('form-group border p-3 mb-3').length;
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'form-group border p-3 mb-3';
+
+    const questionLabel = document.createElement('label');
+    questionLabel.innerText = 'Question:';
+    questionDiv.appendChild(questionLabel);
+
+    const questionInput = document.createElement('input');
+    questionInput.type = 'text';
+    questionInput.className = 'form-control mb-2';
+    questionInput.name = 'questions[]';
+    questionInput.value = question;
+    questionDiv.appendChild(questionInput);
+
+    const answersDiv = document.createElement('div');
+    answersDiv.className = 'mb-2';
+
+    for (let i = 0; i < 4; i++) {
+        const answerDiv = document.createElement('div');
+        answerDiv.className = 'form-check d-flex align-items-center mb-2';
+
+        const correctAnswerInput = document.createElement('input');
+        correctAnswerInput.type = 'radio';
+        correctAnswerInput.className = 'form-check-input mr-2'; // Set margin-right for spacing
+        correctAnswerInput.name = `correct_answers[${questionsCount}]`; // Group radio buttons per question
+        correctAnswerInput.value = i;
+        correctAnswerInput.checked = answers ? answers[i].is_correct : false;
+        answerDiv.appendChild(correctAnswerInput);
+
+        const answerInput = document.createElement('input');
+        answerInput.type = 'text';
+        answerInput.className = 'form-control';
+        answerInput.name = `answers[${questionsCount}][${i}]`; // Use nested array for question and answer
+        answerInput.value = answers ? answers[i].value : '';
+        answerDiv.appendChild(answerInput);
+
+        answersDiv.appendChild(answerDiv);
+    }
+
+    questionDiv.appendChild(answersDiv);
+    questionsContainer.appendChild(questionDiv);
+    const lastQuestion = document.getElementsByClassName('form-group border p-3 mb-3').length - 1;
+    const removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.className = 'btn btn-danger';
+    removeButton.innerText = 'Remove Question';
+    removeButton.onclick = () => {
+        questionsContainer.removeChild(questionDiv);
+    };
+    questionDiv.appendChild(removeButton);
+    //Append question after the lastQuestion
+    questionsContainer.insertBefore(questionDiv, questionsContainer.children[lastQuestion]);
+}
+
 function createManualTest() {
-    loadAllUsers();
     const questionsContainer = document.getElementById('questionsContainer');
     questionsContainer.innerHTML = ''; // Clear existing content
-
-    const addQuestion = () => {
-        const questionsCount = document.getElementsByClassName('form-group border p-3 mb-3').length;
-        const questionDiv = document.createElement('div');
-        questionDiv.className = 'form-group border p-3 mb-3';
-
-        const questionLabel = document.createElement('label');
-        questionLabel.innerText = 'Question:';
-        questionDiv.appendChild(questionLabel);
-
-        const questionInput = document.createElement('input');
-        questionInput.type = 'text';
-        questionInput.className = 'form-control mb-2';
-        questionInput.name = 'questions[]';
-        questionDiv.appendChild(questionInput);
-
-        const answersDiv = document.createElement('div');
-        answersDiv.className = 'mb-2';
-
-        for (let i = 0; i < 4; i++) {
-            const answerDiv = document.createElement('div');
-            answerDiv.className = 'form-check d-flex align-items-center mb-2';
-
-            const correctAnswerInput = document.createElement('input');
-            correctAnswerInput.type = 'radio';
-            correctAnswerInput.className = 'form-check-input mr-2'; // Set margin-right for spacing
-            correctAnswerInput.name = `correct_answers[${questionsCount}]`; // Group radio buttons per question
-            correctAnswerInput.value = i;
-            answerDiv.appendChild(correctAnswerInput);
-
-            const answerInput = document.createElement('input');
-            answerInput.type = 'text';
-            answerInput.className = 'form-control';
-            answerInput.name = `answers[${questionsCount}][${i}]`; // Use nested array for question and answer
-            answerDiv.appendChild(answerInput);
-
-            answersDiv.appendChild(answerDiv);
-        }
-
-        questionDiv.appendChild(answersDiv);
-        questionsContainer.appendChild(questionDiv);
-        const lastQuestion = document.getElementsByClassName('form-group border p-3 mb-3').length - 1;
-        const removeButton = document.createElement('button');
-        removeButton.type = 'button';
-        removeButton.className = 'btn btn-danger';
-        removeButton.innerText = 'Remove Question';
-        removeButton.onclick = () => {
-            questionsContainer.removeChild(questionDiv);
-        };
-        questionDiv.appendChild(removeButton);
-        //Append question after the lastQuestion
-        questionsContainer.insertBefore(questionDiv, questionsContainer.children[lastQuestion]);
-    };
 
     // Add a question when the page loads
     addQuestion();
@@ -159,6 +163,13 @@ function createManualTest() {
     addButton.innerText = 'Add Question';
     addButton.onclick = addQuestion;
 
+    // Add existing questions button
+    const fetchButton = document.createElement('button');
+    fetchButton.type = 'button';
+    fetchButton.className = 'btn btn-secondary mb-4';
+    fetchButton.innerText = 'Add existing questions';
+    fetchButton.onclick = fetchQuestions;
+
     // Add "Save Test" button
     const saveButton = document.createElement('button');
     saveButton.type = 'button';
@@ -168,6 +179,7 @@ function createManualTest() {
 
     // Append buttons to the questions container
     questionsContainer.appendChild(addButton);
+    questionsContainer.appendChild(fetchButton);
     questionsContainer.appendChild(saveButton);
 }
 
@@ -184,7 +196,7 @@ function saveManualTest() {
         alert('Please provide a name for the test.');
     }
     const options = document.getElementById('assignUsers').selectedOptions;
-    const users = Array.from(options).map(({ value }) => value);
+    const users = Array.from(options).map(({value}) => value);
 
     const data = {
         test_name: testName,
@@ -200,7 +212,6 @@ function saveManualTest() {
                 isValid = false;
                 alert('Please fill in all questions.');
             }
-            // console.log("question: ", value)
             data.questions.push(value);
         } else if (key.startsWith('answers')) {
             const [questionIndex, answerIndex] = key.match(/\d+/g).map(Number);
@@ -251,29 +262,29 @@ function saveManualTest() {
         },
         body: JSON.stringify(data)
     }).then(response => {
-            if (response.status === 302 || response.redirected) {
-                // Manually handle the redirect
-                return response.text().then(() => {
-                    window.location.href = '../public/index.html';
-                });
-            } else {
-                return response.json();
-            }
-        })
-        // .catch(error => {
-        //     console.error('Error:', error);
-        // });
+        if (response.status === 302 || response.redirected) {
+            // Manually handle the redirect
+            return response.text().then(() => {
+                window.location.href = '../public/index.html';
+            });
+        } else {
+            return response.json();
+        }
+    })
+    // .catch(error => {
+    //     console.error('Error:', error);
+    // });
     // .catch(error => console.error('Error saving test:', error));
 }
 
 function createAndLoadTest() {
-    loadAllUsers();
     const csvFileInput = document.getElementById('csvFileInput');
     const file = csvFileInput.files[0];
+
     if (file) {
         const formData = new FormData();
         const options = document.getElementById('assignUsers').selectedOptions;
-        const users = Array.from(options).map(({ value }) => value);
+        const users = Array.from(options).map(({value}) => value);
         formData.append('csvFile', file);
         formData.append('test_name', file.name.replace(/\.[^/.]+$/, "")); // Set test name as file name without extension
         formData.append('users', JSON.stringify(users));
@@ -333,12 +344,83 @@ function loadAllUsers() {
 
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const createTestButton = document.querySelector('button[onclick="showCreateTestOptions()"]');
     createTestButton.addEventListener('click', createManualTest);
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    loadAllUsers();
     loadTest();
     submitTest();
 });
+
+function addSelectedQuestions() {
+    let selectedQuestions = [];
+    document.querySelectorAll('.form-check-input:checked').forEach(checkbox => {
+        selectedQuestions.push(checkbox.value);
+    });
+
+    // Now you have the selected questions, you can add them to your test
+    fetchQuestionsByIds(selectedQuestions);
+
+    $('#questionsModal').modal('hide');
+}
+
+function fetchQuestions() {
+    fetch('../src/fetch_questions.php')
+        .then(response => response.json())
+        .then(data => {
+            let modalBody = '';
+            data.forEach((question, index) => {
+                modalBody += `<div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="${question.id}" id="question${index}">
+                                <label class="form-check-label" for="question${index}">
+                                    ${question.description}
+                                </label>
+                              </div>`;
+            });
+
+            let modal = `<div class="modal" tabindex="-1" role="dialog" id="questionsModal">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Select Questions</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        ${modalBody}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-primary" id="addQuestions" onclick="addSelectedQuestions()">Add Questions</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+
+            document.body.insertAdjacentHTML('beforeend', modal);
+            $('#questionsModal').modal('show');
+        })
+        .catch(error => console.error('Error fetching questions:', error));
+}
+
+//Create a function that fetches from fetch_questions_by_ids.php and creates questions with answers
+function fetchQuestionsByIds(questionIds) {
+    fetch(`../src/fetch_questions_by_ids.php?ids=${questionIds}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).then(response => response.json())
+        .then(data => {
+            //Response from the server: [{"id":329,"test_id":17,"description":"\u041a\u0430\u043a\u0432\u043e \u043e\u0437\u043d\u0430\u0447\u0430\u0432\u0430 CSSOM?","answers":[{"value":"Cascading Style Sheets Optimization Method","question_id":329,"is_correct":0,"id":1301},{"value":"CSS Object Model ","question_id":329,"is_correct":1,"id":1302},{"value":"Custom Style Sheets Object Management","question_id":329,"is_correct":0,"id":1303},{"value":"Computed Style Sheets Object Mapping","question_id":329,"is_correct":0,"id":1304}]}]
+            data.forEach(question => {
+                console.log("HEREQ");
+                addQuestion(question.description, question.answers);
+            });
+        });
+
+}

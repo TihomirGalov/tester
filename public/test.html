@@ -56,11 +56,8 @@
             <label for="testName">Test Name:</label>
             <input type="text" class="form-control mb-4" id="testName" name="test_name">
         </div>
-        <input type="file" id="csvFileInput" class="mb-4" accept=".csv">
+        <input type="file" id="csvFileInput" class="btn btn-secondary mb-3" accept=".csv">
         <button class="btn btn-primary mb-4" onclick="createAndLoadTest()">Import CSV and Load Test</button>
-        <button class="btn btn-primary mr-2" onclick="exportTest('csv')">Export as CSV</button>
-        <button class="btn btn-secondary mr-2" onclick="exportTest('xml')">Export as XML</button>
-        <button class="btn btn-success" onclick="exportTest('gift')">Export as GIFT</button>
 
         <!-- Add multiple choice drop down to assign the test to users -->
         <div class="form-group" id="assignUsersContainer">
@@ -69,6 +66,10 @@
                 <option value="">Select Users</option>
             </select>
         </div>
+    </div>
+    <div id="export-buttons">
+        <button class="btn btn-primary mr-2" onclick="exportTest('csv')">Export as CSV</button>
+        <button class="btn btn-secondary mr-2" onclick="exportTest('xml')">Export as XML</button>
     </div>
     <form id="questionsContainer" action="../src/submit_test.php" method="post">
         <!-- Dynamic questions will be generated here -->

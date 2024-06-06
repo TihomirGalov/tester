@@ -2,15 +2,15 @@
 global $conn;
 include 'db.php';
 
-function updateUserInfo($conn, $username, $hashed_password)
+function updateUserInfo($conn, $username, $hashed_password, $faculty_number)
 {
-    $sql = "UPDATE users SET password = ? WHERE nickname = ?";
+    $sql = "UPDATE users SET password=?, faculty_number=? WHERE nickname=?";
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         echo "Error preparing statement: " . $conn->error;
         return;
     }
-    $stmt->bind_param("ss", $hashed_password, $username);
+    $stmt->bind_param("sss", $hashed_password, $faculty_number, $username);
     if ($stmt->execute() === TRUE) {
         header("Location: ../public/index.html");
         exit;

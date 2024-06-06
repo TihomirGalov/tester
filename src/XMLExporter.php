@@ -5,21 +5,21 @@ namespace Export;
 class XMLExporter implements ExporterInterface {
     public function export(Test $test) {
         $filename = $test->getName() . '.xml';
-        header('Content-Type: text/xml');
-        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Content-Type: text/xml; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
 
-        $xml = new \SimpleXMLElement('<quiz></quiz>');
+        $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><quiz></quiz>');
 
         foreach ($test->getQuestions() as $question) {
             $questionElement = $xml->addChild('question');
             $questionElement->addAttribute('type', 'multichoice');
 
             $nameElement = $questionElement->addChild('name');
-            $nameElement->addChild('text', htmlspecialchars($question['description']));
+            $nameElement->addChild('text', htmlspecialchars($question['description'], ENT_QUOTES, 'UTF-8'));
 
             $questionText = $questionElement->addChild('questiontext');
             $questionText->addAttribute('format', 'html');
-            $questionText->addChild('text', htmlspecialchars($question['description']));
+            $questionText->addChild('text', htmlspecialchars($question['description'], ENT_QUOTES, 'UTF-8'));
 
             $questionElement->addChild('defaultgrade', '1');
             $questionElement->addChild('penalty', '0.3333333');
@@ -31,7 +31,7 @@ class XMLExporter implements ExporterInterface {
             foreach ($question['answers'] as $answer) {
                 $answerElement = $questionElement->addChild('answer');
                 $answerElement->addAttribute('fraction', $answer['is_correct'] ? '100' : '0');
-                $answerElement->addChild('text', htmlspecialchars($answer['answer']));
+                $answerElement->addChild('text', htmlspecialchars($answer['answer'], ENT_QUOTES, 'UTF-8'));
                 $answerElement->addChild('feedback');
             }
         }

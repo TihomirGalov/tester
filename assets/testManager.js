@@ -3,7 +3,7 @@ function loadTest() {
     if (!testId) {
         return;
     }
-    document.getElementById('create-test-controls').innerHTML = ''; // Clear existing content
+    // document.getElementById('create-test-controls').innerHTML = ''; // Clear existing content
 
     fetch(`../src/load_test.php?test_id=${testId}`)
         .then(response => response.json())

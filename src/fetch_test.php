@@ -20,6 +20,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $questionsDetailsData = [];
         $answersData = [];
 
+        // Create a new test
+        $createdBy = $_SESSION['user_id'];
+        $stmt = $conn->prepare("INSERT INTO tests (name, created_by) VALUES (?, ?)");
+        $stmt->bind_param("si", $testName, $createdBy);
+        $stmt->execute();
+        $testId = $stmt->insert_id;
+        $stmt->close();
+
+        // Insert questions, question details, and answers
+        $questionStmt = $conn->prepare("INSERT INTO questions (test_id, description) VALUES (?, ?)");
+        $questionDetailsStmt = $conn->prepare(
+            "INSERT INTO question_details (question_id, timestamp, faculty_number, question_number, purpose, type, correct_answer, difficulty_level, feedback_correct, feedback_incorrect, remarks) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        );
+        $answerStmt = $conn->prepare("INSERT INTO answers (value, question_id, is_correct) VALUES (?, ?, ?)");
+
         while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
             $timestamp = date('Y-m-d H:i:s', strtotime($data[0]));
             $faculty_number = $data[1];
@@ -34,65 +50,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $feedback_incorrect = $data[13];
             $remarks = $data[14];
 
-            // Append to questions array
-            $questionsData[] = [$description];
+            // Insert into questions table
+            $questionStmt->bind_param("is", $testId, $description);
+            $questionStmt->execute();
+            $questionId = $questionStmt->insert_id;
 
-            // Append to question details array
-            $questionsDetailsData[] = [
-                $timestamp, $faculty_number, $question_number, $purpose, $type, $correct_answer_index + 1,
-                $difficulty_level, $feedback_correct, $feedback_incorrect, $remarks
-            ];
+            // Insert into question details table
+            $answer_index = $correct_answer_index + 1;
+            $questionDetailsStmt->bind_param(
+                "issisisisss",
+                $questionId, $timestamp, $faculty_number, $question_number, $purpose, $type,
+                $answer_index, $difficulty_level, $feedback_correct, $feedback_incorrect, $remarks
+            );
+            $questionDetailsStmt->execute();
 
-            // Append answers to answers array
+            // Insert into answers table
             foreach ($answers as $index => $answer) {
                 $is_correct = ($index === $correct_answer_index) ? 1 : 0;
-                $answersData[] = [$answer, $is_correct];
+                $answerStmt->bind_param("sii", $answer, $questionId, $is_correct);
+                $answerStmt->execute();
             }
         }
 
+        // Close statements and file handle
+        $questionStmt->close();
+        $questionDetailsStmt->close();
+        $answerStmt->close();
         fclose($handle);
-
-        // Write to temporary CSV files
-        $questionsTempFile = tempnam(sys_get_temp_dir(), 'questions');
-        $questionDetailsTempFile = tempnam(sys_get_temp_dir(), 'question_details');
-        $answersTempFile = tempnam(sys_get_temp_dir(), 'answers');
-
-        $questionsHandle = fopen($questionsTempFile, 'w');
-        foreach ($questionsData as $row) {
-            fputcsv($questionsHandle, $row);
-        }
-        fclose($questionsHandle);
-
-        $questionDetailsHandle = fopen($questionDetailsTempFile, 'w');
-        foreach ($questionsDetailsData as $row) {
-            fputcsv($questionDetailsHandle, $row);
-        }
-        fclose($questionDetailsHandle);
-
-        $answersHandle = fopen($answersTempFile, 'w');
-        foreach ($answersData as $row) {
-            fputcsv($answersHandle, $row);
-        }
-        fclose($answersHandle);
-
-        $createdBy = $_SESSION['user_id'];
-
-        // Create a new test
-        $stmt = $conn->prepare("INSERT INTO tests (name, created_by) VALUES (?, ?)");
-        $stmt->bind_param("si", $testName, $createdBy);
-        $stmt->execute();
-        $testId = $stmt->insert_id;
-        $stmt->close();
-
-        // Load data from temporary files into respective tables
-        $conn->query("LOAD DATA INFILE '$questionsTempFile' INTO TABLE questions FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n' (description) SET test_id = $testId");
-        $conn->query("LOAD DATA INFILE '$questionDetailsTempFile' INTO TABLE question_details FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n' (timestamp, faculty_number, question_number, purpose, type, correct_answer, difficulty_level, feedback_correct, feedback_incorrect, remarks)");
-        $conn->query("LOAD DATA INFILE '$answersTempFile' INTO TABLE answers FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n' (value, is_correct)");
-
-        // Clean up temporary files
-        unlink($questionsTempFile);
-        unlink($questionDetailsTempFile);
-        unlink($answersTempFile);
 
         echo json_encode(['test_id' => $testId]);
     } else {

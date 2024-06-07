@@ -10,14 +10,21 @@ function fetchQuestionDetails(questionId) {
 
             data.forEach(field => {
                 const divFormGroup = document.createElement('div');
-                divFormGroup.className = 'form-group';
+                divFormGroup.className = 'form-group mb-3';
 
                 const label = document.createElement('label');
                 label.innerText = field.label;
+                label.className = 'form-label';
                 divFormGroup.appendChild(label);
 
                 if (field.type === 'radio') {
+                    const radioContainer = document.createElement('div');
+                    radioContainer.className = 'd-flex align-items-center';
+
                     for (let i = 1; i <= field.options; i++) {
+                        const radioDiv = document.createElement('div');
+                        radioDiv.className = 'form-check form-check-inline';
+
                         const input = document.createElement('input');
                         input.type = 'radio';
                         input.className = 'form-check-input';
@@ -26,12 +33,28 @@ function fetchQuestionDetails(questionId) {
                         if (i === parseInt(field.value)) {
                             input.checked = true;
                         }
-                        divFormGroup.appendChild(input);
+                        radioDiv.appendChild(input);
 
                         const optionLabel = document.createElement('label');
                         optionLabel.className = 'form-check-label';
                         optionLabel.innerText = i;
-                        divFormGroup.appendChild(optionLabel);
+                        radioDiv.appendChild(optionLabel);
+
+                        radioContainer.appendChild(radioDiv);
+                    }
+                    divFormGroup.appendChild(radioContainer);
+
+                    // Add difficulty explanation if field name is difficulty_level
+                    if (field.name === 'difficulty_level') {
+                        const difficultyExplanation = document.createElement('small');
+                        difficultyExplanation.className = 'form-text text-muted';
+                        difficultyExplanation.innerText = '(1 много лесен - 5 много труден)';
+                        divFormGroup.appendChild(difficultyExplanation);
+                    } else if (field.name === 'type') {
+                        const difficultyExplanation = document.createElement('small');
+                        difficultyExplanation.className = 'form-text text-muted';
+                        difficultyExplanation.innerText = '(1 - За предварителни знания; 2 - по време на презентацията; 3 - след презентацията )';
+                        divFormGroup.appendChild(difficultyExplanation);
                     }
                 } else {
                     const input = document.createElement('input');

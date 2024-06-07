@@ -105,6 +105,17 @@
                         questionContainer.append(answerDiv);
                     });
 
+                    let feedbackText = questionData.answers.some(answer => answer.user_answer && answer.is_correct)
+                        ? questionData.feedback_correct
+                        : questionData.feedback_incorrect;
+
+                    let feedbackDiv = $('<div>', {
+                        class: 'alert ' + (feedbackText === questionData.feedback_correct ? 'alert-success' : 'alert-danger'),
+                        role: 'alert'
+                    }).text(feedbackText);
+
+                    questionContainer.append(feedbackDiv);
+
                     let reviewTextarea = $('<textarea>', {
                         class: 'form-control mt-2',
                         name: 'reviews[]',

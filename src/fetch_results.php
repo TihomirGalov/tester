@@ -25,13 +25,17 @@ function getQuestionsAndAnswers($finished_exam_id, $user_id) {
             a.id AS answer_id, 
             a.value AS answer,
             a.is_correct,
-            fq.marked_answer = a.id AS user_answer
+            fq.marked_answer = a.id AS user_answer,
+            qd.feedback_correct,
+            qd.feedback_incorrect
         FROM 
             finished_questions fq
         JOIN 
             questions q ON fq.question_id = q.id
         JOIN 
             answers a ON q.id = a.question_id
+        JOIN
+            question_details qd ON q.id = qd.question_id
         WHERE 
             fq.exam_id = ?
     ";
@@ -42,6 +46,8 @@ function getQuestionsAndAnswers($finished_exam_id, $user_id) {
     $questions = [];
     while ($row = $result->fetch_assoc()) {
         $questions[$row['question_id']]['question'] = $row['question'];
+        $questions[$row['question_id']]['feedback_correct'] = $row['feedback_correct'];
+        $questions[$row['question_id']]['feedback_incorrect'] = $row['feedback_incorrect'];
         $questions[$row['question_id']]['answers'][] = [
             'answer_id' => $row['answer_id'],
             'answer' => $row['answer'],

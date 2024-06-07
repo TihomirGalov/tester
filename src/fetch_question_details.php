@@ -23,7 +23,7 @@ $fields = array();
 while ($row = $result->fetch_assoc()) {
     $fields[] = array(
         'name' => 'description',
-        'label' => 'Question',
+        'label' => 'Въпрос',
         'type' => 'text',
         'value' => $row['description']
     );
@@ -31,53 +31,53 @@ while ($row = $result->fetch_assoc()) {
     for ($i = 0; $i < count($answers); $i++) {
         $fields[] = array(
             'name' => "answer_" . ($i + 1),
-            'label' => "Answer " . ($i + 1),
+            'label' => "Отговор " . ($i + 1),
             'type' => 'text',
             'value' => $answers[$i]
         );
     }
     $fields[] = array(
         'name' => 'purpose',
-        'label' => 'Purpose',
+        'label' => 'Цел',
         'type' => 'text',
         'value' => $row['purpose']
     );
     $fields[] = array(
         'name' => 'type',
-        'label' => 'Type',
+        'label' => 'Тип',
         'type' => 'radio',
         'value' => $row['type'],
         'options' => 3
     );
     $fields[] = array(
         'name' => 'correct_answer',
-        'label' => 'Correct Answer',
+        'label' => 'Верен отговор',
         'type' => 'radio',
         'value' => $row['correct_answer'],
         'options' => 4
     );
     $fields[] = array(
         'name' => 'difficulty_level',
-        'label' => 'Difficulty Level',
+        'label' => 'Трудност на въпроса',
         'type' => 'radio',
         'value' => $row['difficulty_level'],
         'options' => 5
     );
     $fields[] = array(
         'name' => 'feedback_correct',
-        'label' => 'Feedback for Correct Answer',
+        'label' => 'Обратна връзка при правилен отговор',
         'type' => 'text',
         'value' => $row['feedback_correct']
     );
     $fields[] = array(
         'name' => 'feedback_incorrect',
-        'label' => 'Feedback for Incorrect Answer',
+        'label' => 'Обратна връзка при грешен отговор',
         'type' => 'text',
         'value' => $row['feedback_incorrect']
     );
     $fields[] = array(
         'name' => 'remarks',
-        'label' => 'Remarks',
+        'label' => 'Забележка',
         'type' => 'text',
         'value' => $row['remarks']
     );

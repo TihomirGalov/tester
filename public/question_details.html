@@ -56,9 +56,10 @@
     <form id="questionForm">
         <!-- Details of the selected question will be displayed here -->
     </form>
+    <button type="button" class="btn btn-primary" onclick="saveQuestionDetails()">Save</button>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="../assets/questionManager.js"></script>
@@ -69,6 +70,27 @@
         const questionId = urlParams.get('id');
         fetchQuestionDetails(questionId);
     };
+
+    function saveQuestionDetails() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const questionId = urlParams.get('id');
+
+        const formData = $('#questionForm').serializeArray();
+        formData.push({ name: 'id', value: questionId });
+
+        $.ajax({
+            url: '../src/save_question_details.php',
+            method: 'POST',
+            data: $.param(formData),
+            success: function(response) {
+                window.location.href = `../public/index.html`;
+            },
+            error: function(xhr, status, error) {
+                console.error('Error saving question details:', error);
+                alert('An error occurred while saving question details.');
+            }
+        });
+    }
 </script>
 </body>
 </html>

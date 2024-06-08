@@ -9,6 +9,10 @@ if (!isset($_SESSION['loggedIn']) || !$_SESSION['loggedIn'] || !$_SESSION['user_
 
 include '../includes/db.php';
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Collect data from POST request
 $question_id = $_POST['id'];
 $purpose = $_POST['purpose'];
@@ -85,48 +89,47 @@ if (!$stmt->execute()) {
 
 $stmt->close();
 
-// Update answers table
-$sql = "DELETE FROM answers WHERE question_id = ?";
-$stmt = $conn->prepare($sql);
-if ($stmt === false) {
-    error_log("Error preparing statement for delete answers: " . $conn->error);
-    echo json_encode(["status" => "error", "message" => "Database error"]);
-    exit();
-}
+// Get the minimum answer_id associated with the current question_id
+$sql_min_id = "SELECT MIN(id) AS min_id FROM answers WHERE question_id = ?";
+$stmt_min_id = $conn->prepare($sql_min_id);
+$stmt_min_id->bind_param("i", $question_id);
+$stmt_min_id->execute();
+$stmt_min_id->bind_result($min_id);
+$stmt_min_id->fetch();
+$stmt_min_id->close();
 
-$stmt->bind_param("i", $question_id);
-
-if (!$stmt->execute()) {
-    error_log("Error executing statement for delete answers: " . $stmt->error);
-    echo json_encode(["status" => "error", "message" => "Database error"]);
-    exit();
-}
-
-$stmt->close();
-
-$sql = "INSERT INTO answers (question_id, value, is_correct) VALUES (?, ?, ?)";
-$stmt = $conn->prepare($sql);
-if ($stmt === false) {
-    error_log("Error preparing statement for insert answers: " . $conn->error);
-    echo json_encode(["status" => "error", "message" => "Database error"]);
-    exit();
-}
+// Use the minimum answer_id as a base for incrementing in each iteration
+$current_answer_id = $min_id;
 
 foreach ($answers as $key => $value) {
-    $answer_id = str_replace('answer_', '', $key);
-    $is_correct = ($answer_id == $correct_answer) ? 1 : 0;
-    $stmt->bind_param("isi", $question_id, $value, $is_correct);
-    if (!$stmt->execute()) {
-        error_log("Error executing statement for insert answers: " . $stmt->error);
+    // Prepare the update query for the current answer
+    $sql_update = "UPDATE answers SET value = ?, is_correct = ? WHERE id = ? AND question_id = ?";
+    $stmt_update = $conn->prepare($sql_update);
+
+    // Determine the correctness of the current answer
+    $is_correct = ($current_answer_id == $correct_answer) ? 1 : 0;
+
+    // Bind parameters and execute the update query
+    $stmt_update->bind_param("siii", $value, $is_correct, $current_answer_id, $question_id);
+    $stmt_update->execute();
+
+    // Check for errors and handle them if any
+    if ($stmt_update->error) {
+        error_log("Error executing statement for updating answer with ID $current_answer_id: " . $stmt_update->error);
         echo json_encode(["status" => "error", "message" => "Database error"]);
         exit();
     }
-}
 
-$stmt->close();
+    // Close the statement after each iteration
+    $stmt_update->close();
+
+    // Increment the current_answer_id for the next iteration
+    $current_answer_id++;
+}
 
 $conn->close();
 
 error_log("Question details updated successfully for question_id: " . $question_id);
 echo json_encode(["status" => "success"]);
+?>
 ?>

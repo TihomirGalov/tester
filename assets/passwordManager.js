@@ -15,10 +15,12 @@ function startEventListener(formName) {
         const promises = [];
 
         passwordFields.forEach(field => {
-            const promise = sha256(field.value).then(hashedPassword => {
-                field.value = hashedPassword;
-            });
-            promises.push(promise);
+            if (field.value.trim() !== '') {
+                const promise = sha256(field.value).then(hashedPassword => {
+                    field.value = hashedPassword;
+                });
+                promises.push(promise);
+            }
         });
 
         Promise.all(promises).then(() => {

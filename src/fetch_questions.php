@@ -4,7 +4,7 @@ include '../includes/db.php';
 
 session_start();
 
-$query = "SELECT * FROM questions";
+$query = "SELECT questions.id, questions.description, AVG(rating) as rating FROM questions left outer join reviews on questions.id = reviews.question_id GROUP BY questions.id order by AVG(rating) desc";
 $result = $conn->query($query);
 
 $questions = array();

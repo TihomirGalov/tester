@@ -83,5 +83,58 @@ while ($row = $result->fetch_assoc()) {
     );
 }
 
+$stmt->close();
+
+$aggQuery = "SELECT AVG(rating) AS rating, AVG(difficulty) as difficulty, AVG(time_taken) as time_taken FROM reviews WHERE question_id = ? GROUP BY question_id;";
+$reviewsQuery = "SELECT review FROM reviews WHERE question_id = ?;";
+
+$stmt = $conn->prepare($aggQuery);
+$stmt->bind_param('i', $questionId);
+$stmt->execute();
+$result = $stmt->get_result();
+
+while ($row = $result->fetch_assoc()) {
+    $fields[] = array(
+        'name' => 'rating',
+        'label' => 'Средна оценка',
+        'type' => 'text',
+        'disabled' => 'false',
+        'value' => $row['rating']
+    );
+    $fields[] = array(
+        'name' => 'difficulty',
+        'label' => 'Средна трудност',
+        'type' => 'text',
+        'disabled' => 'false',
+        'value' => $row['difficulty']
+    );
+    $fields[] = array(
+        'name' => 'time_taken',
+        'label' => 'Средно време за решаване',
+        'type' => 'text',
+        'disabled' => 'false',
+        'value' => $row['time_taken']
+    );
+}
+
+$stmt->close();
+
+$stmt = $conn->prepare($reviewsQuery);
+$stmt->bind_param('i', $questionId);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$reviews = array();
+while ($row = $result->fetch_assoc()) {
+    $reviews[] = $row['review'];
+}
+
+$fields[] = array(
+    'name' => 'reviews',
+    'label' => 'Отзиви',
+    'type' => 'array',
+    'value' => $reviews
+);
+
 echo json_encode($fields);
 ?>

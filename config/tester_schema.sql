@@ -153,13 +153,21 @@ CREATE TABLE `waiting_exams` (
 
 CREATE TABLE `reviews` (
   `id` int(11) NOT NULL,
-  `user_id` INT NOT NULL,
-  `question_id` INT NOT NULL,
-  `review` TEXT NOT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+  `user_id` int(11) NOT NULL,
+  `question_id` int(11) NOT NULL,
+  `review` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `rating` int(11) NOT NULL,
+  `difficulty` int(11) NOT NULL,
+  `time_taken` int(11) NOT NULL
+) ;
 
+ALTER TABLE `reviews` DROP CONSTRAINT `check_rating`;
+ALTER TABLE `reviews` ADD CONSTRAINT `check_rating` CHECK (`rating` >= -5 AND `rating` <= 5);
+
+ALTER TABLE `reviews` DROP CONSTRAINT `check_difficulty`;
+ALTER TABLE `reviews` ADD CONSTRAINT `check_difficulty` CHECK (`difficulty` >= -5 AND `difficulty` <= 5);
 
 
 --

@@ -56,12 +56,30 @@ function fetchQuestionDetails(questionId) {
                         difficultyExplanation.innerText = '(1 - За предварителни знания; 2 - по време на презентацията; 3 - след презентацията )';
                         divFormGroup.appendChild(difficultyExplanation);
                     }
-                } else {
+                } else if (field.type === 'array') {
+                    // Display all the reviews placed for this questions
+                    const reviews = field.value;
+                    const reviewsContainer = document.createElement('div');
+                    reviewsContainer.className = 'd-flex flex-column';
+                    reviews.forEach(review => {
+                        const reviewDiv = document.createElement('div');
+                        reviewDiv.className = 'border p-2 mb-2';
+
+                        const reviewText = document.createElement('p');
+                        reviewText.innerText = review;
+                        reviewDiv.appendChild(reviewText);
+
+                        reviewsContainer.appendChild(reviewDiv);
+                    });
+                    divFormGroup.appendChild(reviewsContainer);
+                }
+                else {
                     const input = document.createElement('input');
                     input.type = 'text';
                     input.className = 'form-control';
                     input.name = field.name;
                     input.value = field.value;
+                    input.disabled = field.disabled;
                     divFormGroup.appendChild(input);
                 }
 
@@ -81,7 +99,7 @@ function fetchAllQuestions() {
                 const questionButton = document.createElement('button');
                 questionButton.type = 'button';
                 questionButton.className = 'list-group-item list-group-item-action';
-                questionButton.innerText = question.description;
+                questionButton.innerText = question.description + ' - ' + question.rating;
                 questionButton.addEventListener('click', function () {
                     window.location.href = `question_details.html?id=${question.id}`;
                 });

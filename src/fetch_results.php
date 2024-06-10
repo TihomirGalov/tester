@@ -13,7 +13,8 @@ include '../includes/utilities.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$finished_exam_id = $_SESSION['finished_exam_id'];
+// Try to get test_id param from the request
+$finished_exam_id = isset($_GET['test_id']) ? $_GET['test_id'] : $_SESSION['finished_exam_id'];
 $user_id = $_SESSION['user_id'];
 
 function duplicateQuestionDetails($finished_exam_id) {

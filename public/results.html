@@ -100,8 +100,10 @@
     }
 
     $(document).ready(function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const testId = urlParams.get('test_id');
         $.ajax({
-            url: '../src/fetch_results.php',
+            url: `../src/fetch_results.php?test_id=${testId}`,
             method: 'GET',
             dataType: 'json',
             success: function (data) {

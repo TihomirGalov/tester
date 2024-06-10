@@ -41,8 +41,25 @@ if ($result_assigned->num_rows > 0) {
     }
 }
 $stmt_assigned->close();
-$conn->close();
 
+// Fetch tests solved by the logged-in user
+$sql_solved = 'SELECT tests.name, tests.id
+                FROM finished_exams
+                INNER JOIN tests ON finished_exams.test_id = tests.id
+                WHERE finished_exams.user_id = ?';
+
+$stmt_solved = $conn->prepare($sql_solved);
+$stmt_solved->bind_param('i', $user_id);
+$stmt_solved->execute();
+$result_solved = $stmt_solved->get_result();
+$userTestsSolved = [];
+if ($result_solved->num_rows > 0) {
+    while ($row_solved = $result_solved->fetch_assoc()) {
+        $userTestsSolved[] = $row_solved;
+    }
+}
+$stmt_solved->close();
+$conn->close();
 // Generate HTML content for the tests
 $htmlContent = '';
 
@@ -70,6 +87,18 @@ if (!empty($userTestsAssigned)) {
 }
 $htmlContent .= '</div>';
 
+// Tests solved by the user
+$htmlContent .= '<div class="mt-3">';
+$htmlContent .= '<h3>Tests Solved by You</h3>';
+if (!empty($userTestsSolved)) {
+    foreach ($userTestsSolved as $testSolved) {
+        // Load results.html     $_SESSION['score'] = $score;
+        //    $_SESSION['finished_exam_id'] = $exam_id;
+        $htmlContent .= '<a href="results.html?test_id=' . $testSolved['id'] . '" class="btn btn-primary mb-2">Test ' . $testSolved['name'] . '</a>';
+    }
+} else {
+    $htmlContent .= '<p>No tests solved by you.</p>';
+}
 // Return the HTML content
 echo $htmlContent;
 ?>

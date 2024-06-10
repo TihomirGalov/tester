@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Page</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Question Details</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <?php
         session_start();
         if (!isset($_SESSION['loggedIn']) || !$_SESSION['loggedIn'] || !$_SESSION['user_id']) {
@@ -52,49 +52,44 @@
     </div>
 </nav>
 <div class="container mt-5">
-    <h1 class="mb-4">Dynamic Multiple-Choice Test Page</h1>
-    <div id="create-test-controls">
-        <button class="btn btn-primary mb-4" onclick="showCreateTestOptions()">Create Test Manually</button>
-        <div class="form-group d-none" id="testNameContainer">
-            <label for="testName">Test Name:</label>
-            <input type="text" class="form-control mb-4" id="testName" name="test_name">
-        </div>
-        <input type="file" id="csvFileInput" class="btn btn-secondary mb-3" accept=".csv">
-        <button class="btn btn-primary mb-4" onclick="createAndLoadTest()">Import CSV and Load Test</button>
-
-        <!-- Add multiple choice drop down to assign the test to users -->
-        <div class="form-group" id="assignUsersContainer">
-            <label for="assignUsers">Assign Test to Users:</label>
-            <select class="form-control" id="assignUsers" name="assign_users" multiple>
-                <option value="">Select Users</option>
-            </select>
-        </div>
-    </div>
-    <div id="export-buttons">
-        <button class="btn btn-primary mr-2" onclick="exportTest('csv')">Export as CSV</button>
-        <button class="btn btn-secondary mr-2" onclick="exportTest('xml')">Export as XML</button>
-    </div>
-    <form id="questionsContainer" action="../src/submit_test.php" method="post">
-        <!-- Dynamic questions will be generated here -->
-        <button type="submit" class="btn btn-primary mt-3 d-none" id="submitBtn">Submit</button>
+    <h2>Question Details</h2>
+    <form id="questionForm">
+        <!-- Details of the selected question will be displayed here -->
     </form>
+    <button type="button" class="btn btn-primary" onclick="saveQuestionDetails()">Save</button>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="../assets/testManager.js"></script>
+<script src="../assets/questionManager.js"></script>
 <script>
-    function exportTest(format) {
-        // Get the URL parameters
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
+    // Load question details when the page loads
+    window.onload = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const questionId = urlParams.get('id');
+        fetchQuestionDetails(questionId);
+    };
 
-        // Get the test_id parameter value
-        const testId = urlParams.get('test_id');
+    function saveQuestionDetails() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const questionId = urlParams.get('id');
 
-        // Redirect to export_test.php with the test_id and format parameters
-        window.location.href = `../src/export_test.php?test_id=${testId}&format=${format}`;
+        const formData = $('#questionForm').serializeArray();
+        formData.push({ name: 'id', value: questionId });
+
+        $.ajax({
+            url: '../src/save_question_details.php',
+            method: 'POST',
+            data: $.param(formData),
+            success: function(response) {
+                window.location.href = `../public/index.html`;
+            },
+            error: function(xhr, status, error) {
+                console.error('Error saving question details:', error);
+                alert('An error occurred while saving question details.');
+            }
+        });
     }
 </script>
 </body>

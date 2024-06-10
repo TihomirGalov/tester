@@ -33,8 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $testId = createTest($testName, $questionsData, $createdBy);
         assignTest($testId, $users);
 
-//        echo json_encode(['test_id' => $testId]);
-        //TODO redirect does not work
         header("Location: ../public/index.html");
     } else {
         echo json_encode(['error' => 'Invalid input data.']);

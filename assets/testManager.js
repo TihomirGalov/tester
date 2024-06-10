@@ -422,5 +422,4 @@ function fetchQuestionsByIds(questionIds) {
                 addQuestion(question.description, question.answers);
             });
         });
-
 }

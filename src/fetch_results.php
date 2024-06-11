@@ -34,7 +34,7 @@ function getQuestionsAndAnswers($finished_exam_id, $user_id) {
             questions q ON fq.question_id = q.id
         JOIN 
             answers a ON q.id = a.question_id
-        JOIN
+        LEFT OUTER JOIN
             question_details qd ON q.id = qd.question_id
         WHERE 
             fq.exam_id = ?

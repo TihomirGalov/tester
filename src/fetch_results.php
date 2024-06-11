@@ -16,7 +16,34 @@ ini_set('display_errors', 1);
 $finished_exam_id = $_SESSION['finished_exam_id'];
 $user_id = $_SESSION['user_id'];
 
+function duplicateQuestionDetails($finished_exam_id) {
+    global $conn;
+    $sql = "
+        insert into question_details (question_id, timestamp, faculty_number, question_number, purpose, type, correct_answer,
+                                      difficulty_level, feedback_correct, feedback_incorrect, remarks)
+        select q.id, timestamp,
+               faculty_number,
+               question_number,
+               purpose,
+               type,
+               correct_answer,
+               difficulty_level,
+               feedback_correct,
+               feedback_incorrect,
+               remarks
+        from question_details
+                 join questions on question_details.question_id = questions.id
+                 join questions as q on q.description = questions.description
+        where q.id != questions.id
+          and q.id in (select question_id from finished_questions where exam_id = ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $finished_exam_id);
+    $stmt->execute();
+    $stmt->close();
+}
+
 function getQuestionsAndAnswers($finished_exam_id, $user_id) {
+    duplicateQuestionDetails($finished_exam_id);
     global $conn;
     $sql = "
         SELECT 

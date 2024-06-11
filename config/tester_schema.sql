@@ -163,10 +163,21 @@ CREATE TABLE `reviews` (
   `time_taken` int(11) NOT NULL
 ) ;
 
-ALTER TABLE `reviews` DROP CONSTRAINT `check_rating`;
+DELIMITER //
+CREATE PROCEDURE DropConstraintIfExists(IN tableName VARCHAR(64), IN constraintName VARCHAR(64))
+BEGIN
+    DECLARE CONTINUE HANDLER FOR 1091 BEGIN END;  -- Ignore error if constraint doesn't exist
+    SET @s = CONCAT('ALTER TABLE ', tableName, ' DROP FOREIGN KEY ', constraintName);
+    PREPARE stmt FROM @s;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END//
+DELIMITER ;
+
+CALL DropConstraintIfExists('reviews', 'check_rating');
 ALTER TABLE `reviews` ADD CONSTRAINT `check_rating` CHECK (`rating` >= -5 AND `rating` <= 5);
 
-ALTER TABLE `reviews` DROP CONSTRAINT `check_difficulty`;
+CALL DropConstraintIfExists('reviews', 'check_difficulty');
 ALTER TABLE `reviews` ADD CONSTRAINT `check_difficulty` CHECK (`difficulty` >= -5 AND `difficulty` <= 5);
 
 

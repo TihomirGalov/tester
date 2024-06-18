@@ -444,19 +444,17 @@ function fetchQuestionsByIds(questionIds) {
         });
 }
 
+let lines = []; // Define lines outside the function
+
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = function (e) {
             const text = e.target.result;
-            const lines = text.split('\n').map(line => line.split(','));
+            lines = text.split('\n').map(line => line.split(','));
             const creators = [...new Set(lines.map(line => line[1]).filter(creator => creator))];
-            const purposes = [...new Set(lines.map(line => line[3]).filter(purpose => purpose))];
-
             populateDropdown('creator', creators);
-            populateDropdown('testPurpose', purposes);
-
             document.getElementById('importCsvBtn').style.display = 'block';
         };
         reader.readAsText(file);
@@ -467,13 +465,35 @@ function populateDropdown(dropdownId, values) {
     const dropdown = document.getElementById(dropdownId);
     dropdown.innerHTML = '';
     values.forEach(value => {
-        // Remove leading and trailing quotation marks
-        const cleanedValue = value.replace(/^"(.*)"$/, '$1');
         const option = document.createElement('option');
-        option.text = cleanedValue;
-        option.value = cleanedValue;
+        option.text = value;
+        option.value = value;
         dropdown.add(option);
     });
+    // Listen for changes in the creator dropdown
+    dropdown.addEventListener('change', function() {
+        const selectedCreator = this.value;
+        // Filter purposes based on the selected creator
+        const filteredLines = lines
+            .filter(line => line[1] === selectedCreator) // Filter rows by selected creator
+            .map(line => line[3]);
+        const filteredPurposes = filteredLines// Extract purposes from filtered rows
+            .filter((purpose, index, self) => self.indexOf(purpose) === index); // Remove duplicates
+        const totalCount = filteredLines.length;
+        // Populate the testPurpose dropdown with filtered purposes
+        populateDropdown('testPurpose', filteredPurposes, selectedCreator);
+        // Update the total count of questions
+        updateTotalCount(totalCount);
+    });
+}
+
+function updateTotalCount(count) {
+    const totalCountContainer = document.getElementById('totalCountContainer');
+    if (count !== undefined) {
+        totalCountContainer.textContent = `Total Count of Questions: ${count}`;
+    } else {
+        totalCountContainer.textContent = '';
+    }
 }
 
 

@@ -375,12 +375,6 @@ document.addEventListener('DOMContentLoaded', function () {
     createTestButton.addEventListener('click', createManualTest);
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    loadAllUsers();
-    loadTest();
-    submitTest();
-});
-
 function addSelectedQuestions() {
     let selectedQuestions = [];
     document.querySelectorAll('.form-check-input:checked').forEach(checkbox => {
@@ -449,3 +443,89 @@ function fetchQuestionsByIds(questionIds) {
             });
         });
 }
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const text = e.target.result;
+            const lines = text.split('\n').map(line => line.split(','));
+            const creators = [...new Set(lines.map(line => line[1]).filter(creator => creator))];
+            const purposes = [...new Set(lines.map(line => line[3]).filter(purpose => purpose))];
+
+            populateDropdown('creator', creators);
+            populateDropdown('testPurpose', purposes);
+
+            document.getElementById('importCsvBtn').style.display = 'block';
+        };
+        reader.readAsText(file);
+    }
+}
+
+function populateDropdown(dropdownId, values) {
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.innerHTML = '';
+    values.forEach(value => {
+        // Remove leading and trailing quotation marks
+        const cleanedValue = value.replace(/^"(.*)"$/, '$1');
+        const option = document.createElement('option');
+        option.text = cleanedValue;
+        option.value = cleanedValue;
+        dropdown.add(option);
+    });
+}
+
+
+function handleImport() {
+    const questionRange = document.getElementById('questionRange').value;
+    const creator = document.getElementById('creator').value;
+    const testPurpose = document.getElementById('testPurpose').value;
+
+    const csvFileInput = document.getElementById('csvFileInput');
+    const file = csvFileInput.files[0];
+
+    if (!file) {
+        alert('Please select a CSV file to upload.');
+        return;
+    }
+
+    const formData = new FormData();
+    const options = document.getElementById('assignUsers').selectedOptions;
+    const users = Array.from(options).map(({ value }) => value);
+
+    formData.append('csvFile', file);
+    formData.append('test_name', file.name.replace(/\.[^/.]+$/, "")); // Set test name as file name without extension
+    formData.append('users', JSON.stringify(users));
+    formData.append('question_range', questionRange);
+    formData.append('creator', creator);
+    formData.append('test_purpose', testPurpose);
+
+    fetch('../src/fetch_test.php', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.test_id) {
+                console.error(data);
+                window.location.href = `../public/test.html?test_id=${data.test_id}`;
+            } else {
+                console.error('Error creating test:', data.error);
+                alert('Error creating test: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error creating test:', error);
+            alert('Error creating test: ' + error.message);
+        });
+}
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    loadAllUsers();
+    loadTest();
+    submitTest();
+    document.getElementById('csvFileInput').addEventListener('change', handleFileSelect);
+
+});

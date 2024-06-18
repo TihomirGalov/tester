@@ -195,8 +195,20 @@ function saveManualTest() {
         isValid = false;
         alert('Please provide a name for the test.');
     }
-    const options = document.getElementById('assignUsers').selectedOptions;
-    const users = Array.from(options).map(({value}) => value);
+
+    const assignAllCheckbox = document.getElementById('assignAllUsers');
+    let users = [];
+    if (assignAllCheckbox.checked) {
+        // If "Assign All Users" is checked, include all user IDs
+        const allOptions = document.getElementById('assignUsers').options;
+        for (let option of allOptions) {
+            users.push(option.value);
+        }
+    } else {
+        // Otherwise, include only selected user IDs
+        const selectedOptions = document.getElementById('assignUsers').selectedOptions;
+        users = Array.from(selectedOptions).map(({ value }) => value);
+    }
 
     const data = {
         test_name: testName,
@@ -254,7 +266,7 @@ function saveManualTest() {
     if (!isValid) {
         return;
     }
-    //console.error(data)
+
     fetch('../src/save_manual_test.php', {
         method: 'POST',
         headers: {
@@ -270,11 +282,9 @@ function saveManualTest() {
         } else {
             return response.json();
         }
-    })
-    // .catch(error => {
-    //     console.error('Error:', error);
-    // });
-    // .catch(error => console.error('Error saving test:', error));
+    }).catch(error => {
+        console.error('Error:', error);
+    });
 }
 
 function createAndLoadTest() {
@@ -322,6 +332,22 @@ function showCreateTestOptions() {
     // Check if buttons already exist
     if (!container.querySelector('.btn-secondary') || !container.querySelector('.btn-primary')) {
         createManualTest();
+    }
+}
+
+function toggleAssignAll() {
+    const assignAllCheckbox = document.getElementById('assignAllUsers');
+    const assignUsersSelect = document.getElementById('assignUsers');
+
+    if (assignAllCheckbox.checked) {
+        // Disable the multi-select and clear selected options
+        assignUsersSelect.disabled = true;
+        for (let option of assignUsersSelect.options) {
+            option.selected = true;
+        }
+    } else {
+        // Enable the multi-select
+        assignUsersSelect.disabled = false;
     }
 }
 

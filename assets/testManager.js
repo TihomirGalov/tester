@@ -207,7 +207,7 @@ function saveManualTest() {
     } else {
         // Otherwise, include only selected user IDs
         const selectedOptions = document.getElementById('assignUsers').selectedOptions;
-        users = Array.from(selectedOptions).map(({ value }) => value);
+        users = Array.from(selectedOptions).map(({value}) => value);
     }
 
     const data = {
@@ -464,27 +464,49 @@ function handleFileSelect(event) {
 function populateDropdown(dropdownId, values) {
     const dropdown = document.getElementById(dropdownId);
     dropdown.innerHTML = '';
+
+    // Add a blank option
+    const blankOption = document.createElement('option');
+    blankOption.text = '';
+    blankOption.value = '';
+    dropdown.add(blankOption);
+    //TODO if blank option, it means that the property is not set and should not act as filter
     values.forEach(value => {
         const option = document.createElement('option');
-        option.text = value;
+        // Remove leading and trailing quotation marks
+        option.text =  value.replace(/^"(.*)"$/, '$1');
         option.value = value;
         dropdown.add(option);
     });
     // Listen for changes in the creator dropdown
-    dropdown.addEventListener('change', function() {
-        const selectedCreator = this.value;
-        // Filter purposes based on the selected creator
-        const filteredLines = lines
-            .filter(line => line[1] === selectedCreator) // Filter rows by selected creator
-            .map(line => line[3]);
-        const filteredPurposes = filteredLines// Extract purposes from filtered rows
-            .filter((purpose, index, self) => self.indexOf(purpose) === index); // Remove duplicates
-        const totalCount = filteredLines.length;
-        // Populate the testPurpose dropdown with filtered purposes
-        populateDropdown('testPurpose', filteredPurposes, selectedCreator);
-        // Update the total count of questions
-        updateTotalCount(totalCount);
-    });
+    if (dropdownId === 'creator') {
+        dropdown.addEventListener('change', function () {
+            const selectedCreator = this.value;
+            // Filter purposes based on the selected creator
+            const filteredLines = lines
+                .filter(line => line[1] === selectedCreator) // Filter rows by selected creator
+                .map(line => line[3]);
+            const filteredPurposes = filteredLines// Extract purposes from filtered rows
+                .filter((purpose, index, self) => self.indexOf(purpose) === index); // Remove duplicates
+            const totalCount = filteredLines.length;
+            // Populate the testPurpose dropdown with filtered purposes
+            populateDropdown('testPurpose', filteredPurposes, selectedCreator);
+            // Update the total count of questions
+            updateTotalCount(totalCount);
+        });
+    }
+    // Listen for changes in the testPurpose dropdown
+    if (dropdownId === 'testPurpose') {
+        dropdown.addEventListener('change', function () {
+            const selectedCreator = document.getElementById('creator').value;
+            const selectedPurpose = this.value;
+            // Filter lines based on the selected creator and purpose
+            const filteredLines = lines.filter(line => line[1] === selectedCreator && line[3] === selectedPurpose);
+            // Count the number of questions for the selected creator and purpose
+            const totalCount = filteredLines.length;
+            updateTotalCount(totalCount);
+        });
+    }
 }
 
 function updateTotalCount(count) {
@@ -499,8 +521,8 @@ function updateTotalCount(count) {
 
 function handleImport() {
     const questionRange = document.getElementById('questionRange').value;
-    const creator = document.getElementById('creator').value;
-    const testPurpose = document.getElementById('testPurpose').value;
+    const creator = document.getElementById('creator').value.replace(/^"(.*)"$/, '$1');
+    const testPurpose = document.getElementById('testPurpose').value.replace(/^"(.*)"$/, '$1');
 
     const csvFileInput = document.getElementById('csvFileInput');
     const file = csvFileInput.files[0];
@@ -512,7 +534,7 @@ function handleImport() {
 
     const formData = new FormData();
     const options = document.getElementById('assignUsers').selectedOptions;
-    const users = Array.from(options).map(({ value }) => value);
+    const users = Array.from(options).map(({value}) => value);
 
     formData.append('csvFile', file);
     formData.append('test_name', file.name.replace(/\.[^/.]+$/, "")); // Set test name as file name without extension

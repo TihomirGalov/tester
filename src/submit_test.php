@@ -12,6 +12,7 @@ $json_obj = json_decode($json_str, true);
 
 if (isset($json_obj['answers'])) {
     $test_id = $json_obj['test_id'];
+    $time_taken = $json_obj['time_taken'];
     $answers = $json_obj['answers'];
     $score = 0;
 
@@ -36,9 +37,9 @@ if (isset($json_obj['answers'])) {
     }
 
     // Create new Finished Exam record
-    $sql = 'INSERT INTO finished_exams (user_id, test_id) VALUES ( ?, ?)';
+    $sql = 'INSERT INTO finished_exams (user_id, test_id, time_taken) VALUES ( ?, ?, ?)';
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('ii', $_SESSION['user_id'], $test_id);
+    $stmt->bind_param('iii', $_SESSION['user_id'], $test_id, $time_taken);
     $stmt->execute();
     $stmt->close();
 

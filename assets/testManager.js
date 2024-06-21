@@ -56,9 +56,13 @@ function submitTest() {
         event.preventDefault();
 
         const formData = new FormData(event.target);
+        const timeTaken = captureTimeTaken();
+
+        formData.delete('time_taken');
 
         const data = {
             test_id: new URLSearchParams(window.location.search).get('test_id'),
+            time_taken: timeTaken,
             answers: Array.from(formData.entries()).reduce((obj, [key, value]) => {
                 if (!obj[key]) {
                     obj[key] = value;
@@ -70,6 +74,8 @@ function submitTest() {
                 return obj;
             }, {})
         };
+
+        console.error(data.answers);
 
         fetch('../src/submit_test.php', {
             method: 'POST',
@@ -86,8 +92,8 @@ function submitTest() {
             } else {
                 return response.json();
             }
-        }).catch(error => {
-            console.error('Error:', error);
+        // }).catch(error => {
+        //     console.error('Error:', error);
         });
     });
 }
@@ -587,11 +593,75 @@ function handleImport() {
         });
 }
 
+// Global variables for timer
+let startTime = null;
+let timerInterval = null;
+
+// Function to start the timer
+function startTimer() {
+    startTime = new Date();
+    // Update time display every second
+    timerInterval = setInterval(updateTimeDisplay, 1000);
+}
+
+// Function to capture time taken in seconds
+function captureTimeTaken() {
+    if (!startTime) {
+        return 0;
+    }
+    const endTime = new Date();
+    return Math.floor((endTime - startTime) / 1000); // Time in seconds
+}
+
+// Function to update time display
+function updateTimeDisplay() {
+    const timeTaken = captureTimeTaken();
+    const timeDisplay = document.getElementById('timeElapsed');
+    if (timeDisplay) {
+        timeDisplay.textContent = formatTime(timeTaken);
+    }
+}
+
+// Function to format time in MM:SS format
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+// Function to show/hide time display based on URL parameter
+function toggleTimeDisplay() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const testId = urlParams.get('test_id');
+    const timeDisplay = document.getElementById('timer');
+    if (testId && timeDisplay) {
+        timeDisplay.style.display = 'block';
+    } else {
+        timeDisplay.style.display = 'none';
+    }
+}
+
+// Add event listener for form submission to include time taken
+document.getElementById('questionsContainer').addEventListener('submit', function(event) {
+    const timeTaken = captureTimeTaken();
+    const timeTakenInput = document.createElement('input');
+    timeTakenInput.type = 'hidden';
+    timeTakenInput.name = 'time_taken';
+    timeTakenInput.value = timeTaken;
+    event.target.appendChild(timeTakenInput);
+    clearInterval(timerInterval); // Stop the timer
+});
+
+// Add event listener for page load
+document.addEventListener('DOMContentLoaded', function () {
+    startTimer();
+    toggleTimeDisplay(); // Initially toggle time display based on URL parameter
+});
+
 
 document.addEventListener('DOMContentLoaded', function () {
     loadAllUsers();
     loadTest();
     submitTest();
     document.getElementById('csvFileInput').addEventListener('change', handleFileSelect);
-
 });

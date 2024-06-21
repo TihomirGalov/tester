@@ -14,6 +14,9 @@
 
         // Fetch the finished_exam_id from the session
         $finished_exam_id = $_SESSION['finished_exam_id'] ?? null;
+
+        // Fetch total time from session if calculated in fetch_results.php
+        $totalTimeInSeconds = $_SESSION['total_time'] ?? 0;
     ?>
 </head>
 <body>
@@ -61,6 +64,9 @@
     </div>
     <div class="alert alert-primary" role="alert">
         Your score is: <strong class="result"><?php echo isset($_SESSION['score']) ? $_SESSION['score'] : ''; ?></strong>
+    </div>
+    <div class="alert alert-info" role="alert">
+        Time to solve the exam: <strong><?php echo gmdate("H:i:s", $totalTimeInSeconds); ?></strong>
     </div>
     <form id="reviewsForm" action="../src/save_reviews.php" method="post">
         <!-- Questions and answers will be loaded here via AJAX -->

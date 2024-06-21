@@ -445,6 +445,7 @@ function fetchQuestionsByIds(questionIds) {
 }
 
 let lines = []; // Define lines outside the function
+let totalCount = 0; // Define total count of questions
 
 function handleFileSelect(event) {
     const file = event.target.files[0];
@@ -452,7 +453,7 @@ function handleFileSelect(event) {
         const reader = new FileReader();
         reader.onload = function (e) {
             const text = e.target.result;
-            lines = text.split('\n').map(line => line.split(','));
+            lines = text.split('\n').slice(1).map(line => line.split(','));
             const creators = [...new Set(lines.map(line => line[1]).filter(creator => creator))];
             populateDropdown('creator', creators);
             document.getElementById('importCsvBtn').style.display = 'block';
@@ -470,7 +471,6 @@ function populateDropdown(dropdownId, values) {
     blankOption.text = '';
     blankOption.value = '';
     dropdown.add(blankOption);
-    //TODO if blank option, it means that the property is not set and should not act as filter
     values.forEach(value => {
         const option = document.createElement('option');
         // Remove leading and trailing quotation marks
@@ -513,13 +513,34 @@ function updateTotalCount(count) {
     const totalCountContainer = document.getElementById('totalCountContainer');
     if (count !== undefined) {
         totalCountContainer.textContent = `Total Count of Questions: ${count}`;
+        totalCount = parseInt(count);
     } else {
         totalCountContainer.textContent = '';
+        totalCount = 0;
     }
 }
 
 
 function handleImport() {
+    const range = document.getElementById('questionRange').value;
+    const [rangeStart, rangeEnd] = range.split('-').map(Number);
+    const errorContainer = document.getElementById('errorContainer');
+
+    console.error(rangeStart);
+    console.error(rangeEnd);
+    console.error(lines.length);
+    // Check if the range is valid
+    if (isNaN(rangeStart) || isNaN(rangeEnd) || rangeStart < 1 || rangeEnd < rangeStart || rangeEnd > totalCount) {
+        // Show error message
+        errorContainer.style.display = 'block';
+        errorContainer.textContent = 'Invalid range. Please enter a valid range between 1 and ' + totalCount + '.';
+        return;
+    } else {
+        // Hide error message if the range is valid
+        errorContainer.style.display = 'none';
+        errorContainer.textContent = '';
+    }
+
     const questionRange = document.getElementById('questionRange').value;
     const creator = document.getElementById('creator').value.replace(/^"(.*)"$/, '$1');
     const testPurpose = document.getElementById('testPurpose').value.replace(/^"(.*)"$/, '$1');
@@ -528,7 +549,8 @@ function handleImport() {
     const file = csvFileInput.files[0];
 
     if (!file) {
-        alert('Please select a CSV file to upload.');
+        errorContainer.style.display = 'block';
+        errorContainer.textContent = 'Please select a CSV file to upload.';
         return;
     }
 
@@ -550,16 +572,18 @@ function handleImport() {
         .then(response => response.json())
         .then(data => {
             if (data.test_id) {
-                console.error(data);
+                console.log(data);
                 window.location.href = `../public/test.html?test_id=${data.test_id}`;
             } else {
                 console.error('Error creating test:', data.error);
-                alert('Error creating test: ' + data.error);
+                errorContainer.style.display = 'block';
+                errorContainer.textContent = 'Error creating test: ' + data.error;
             }
         })
         .catch(error => {
             console.error('Error creating test:', error);
-            alert('Error creating test: ' + error.message);
+            errorContainer.style.display = 'block';
+            errorContainer.textContent = 'Error creating test: ' + error.message;
         });
 }
 

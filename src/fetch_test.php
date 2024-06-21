@@ -16,8 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $testName = $_POST['test_name'];
         $creator = $_POST['creator']; // Retrieve creator from POST
         $testPurpose = $_POST['test_purpose']; // Retrieve test purpose from POST
-        $questionRangeMin = intval($_POST['question_range'][0]); // Retrieve question range from POST
-        $questionRangeMax = intval($_POST['question_range'][2]); // Retrieve question range from POST
+        list($questionRangeMin, $questionRangeMax) = explode('-', $_POST['question_range']);
+        $questionRangeMin = intval($questionRangeMin);
+        $questionRangeMax = intval($questionRangeMax);
 
         $handle = fopen($csvFile, "r");
 
@@ -45,21 +46,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
         $answerStmt = $conn->prepare("INSERT INTO answers (value, question_id, is_correct) VALUES (?, ?, ?)");
 
-        //Skip all questions that are not due to criteria
+        // Skip questions that are not due to criteria
         while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-            if ($data[1] == $creator) {
-                break;
+            if ($creator && $data[1] !== $creator) {
+                continue;
             }
+            if ($testPurpose && $data[3] !== $testPurpose) {
+                continue;
+            }
+            break;
         }
 
         $questions_counter = 1;
-        //Skip the questions that are not in the range
+        // Skip the questions that are not in the range
         while ($questions_counter < $questionRangeMin) {
             $data = fgetcsv($handle, 1000, ",");
             $questions_counter++;
         }
 
-        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE && $questions_counter <= $questionRangeMax) {
+        while ($questions_counter <= $questionRangeMax) {
+            if ($creator && $data[1] !== $creator) {
+                continue;
+            }
+            if ($testPurpose && $data[3] !== $testPurpose) {
+                continue;
+            }
+
             $timestamp = date('Y-m-d H:i:s', strtotime($data[0]));
             $faculty_number = $data[1];
             $question_number = $data[2];
@@ -95,6 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $questions_counter++;
+
+            if (!($data = fgetcsv($handle, 1000, ","))) {
+                break;
+            }
         }
 
         // Close statements and file handle

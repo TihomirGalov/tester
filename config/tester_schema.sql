@@ -44,7 +44,8 @@ CREATE TABLE `finished_exams` (
   `id` int(11) NOT NULL,
   `completed_on` datetime NOT NULL DEFAULT current_timestamp(),
   `test_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL
+  `user_id` int(11) NOT NULL,
+  `time_taken` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 -- --------------------------------------------------------

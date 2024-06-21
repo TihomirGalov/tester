@@ -16,6 +16,7 @@ if (isset($json_obj['answers'])) {
     $answers = $json_obj['answers'];
     $score = 0;
 
+    $_SESSION['total_time'] = $time_taken;
     // Validate input
     if (empty($answers)) {
         handleEmptyRequest();

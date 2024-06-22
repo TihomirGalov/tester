@@ -5,12 +5,10 @@ include 'Test.php';
 include 'ExporterInterface.php';
 include 'CSVExporter.php';
 include 'XMLExporter.php';
-include 'GIFTExporter.php';
 
 use Export\Test;
 use Export\CSVExporter;
 use Export\XMLExporter;
-use Export\GIFTExporter;
 
 if (!isset($_GET['test_id']) || !isset($_GET['format'])) {
     die('Test ID or format not provided');
@@ -27,9 +25,6 @@ try {
             break;
         case 'xml':
             $exporter = new XMLExporter();
-            break;
-        case 'gift':
-            $exporter = new GIFTExporter();
             break;
         default:
             throw new Exception('Invalid format');

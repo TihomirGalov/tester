@@ -18,6 +18,8 @@
         // Fetch total time from session if calculated in fetch_results.php
         $totalTimeInSeconds = $_SESSION['total_time'] ?? 0;
     ?>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="../assets/reviewsManager.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -63,7 +65,8 @@
         Your test has been submitted successfully!
     </div>
     <div class="alert alert-primary" role="alert">
-        Your score is: <strong class="result"><?php echo isset($_SESSION['score']) ? $_SESSION['score'] : ''; ?></strong>
+        Your score is: <strong
+            class="result"><?php echo isset($_SESSION['score']) ? $_SESSION['score'] : ''; ?></strong>
     </div>
     <div class="alert alert-info" role="alert">
         Time to solve the exam: <strong><?php echo gmdate("H:i:s", $totalTimeInSeconds); ?></strong>
@@ -72,143 +75,5 @@
         <!-- Questions and answers will be loaded here via AJAX -->
     </form>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script>
-    function createSlider(container, name, text, plural) {
-        let label = $('<label>', {
-            class: 'form-label mt-3',
-            for: name,
-        }).text(text);
-        container.append(label);
-        let slider = $('<input>', {
-            type: 'range',
-            class: 'form-range',
-            name: plural,
-            min: -5,
-            max: 5,
-            value: 0,
-            oninput: 'this.nextElementSibling.value = this.value'
-        });
-        container.append(slider);
-        const value = $('<output>', {
-            class: 'form-range-value',
-            for: name,
-            value: 0
-        }).text(0);
-        container.append(value);
-    }
-
-    $(document).ready(function () {
-        $.ajax({
-            url: '../src/fetch_results.php',
-            method: 'GET',
-            dataType: 'json',
-            success: function (data) {
-                let reviewsForm = $('#reviewsForm');
-                Object.keys(data).forEach(questionId => {
-                    let questionData = data[questionId];
-                    let questionContainer = $('<div>', {class: 'question-container mb-4'});
-                    let questionTitle = $('<h5>').text(questionData.question);
-                    questionContainer.append(questionTitle);
-                    questionContainer.append('<input type="hidden" name="question_ids[]" value="' + questionId + '">');
-
-                    questionData.answers.forEach(answer => {
-                        let answerDiv = $('<div>', {class: 'form-check'});
-                        let answerLabelClass = '';
-
-                        if (answer.is_correct) {
-                            answerLabelClass = 'text-success'; // Green text for correct answers
-                        } else if (answer.user_answer) {
-                            answerLabelClass = 'text-danger'; // Red text for incorrect answers
-                        }
-
-                        let answerInput = $('<input>', {
-                            type: 'radio',
-                            class: 'form-check-input',
-                            name: 'answer_' + questionId,
-                            value: answer.answer_id,
-                            disabled: true,
-                            checked: answer.user_answer == '1'
-                        });
-
-                        let answerLabel = $('<label>', {class: 'form-check-label ' + answerLabelClass}).text(answer.answer);
-                        answerDiv.append(answerInput);
-                        answerDiv.append(answerLabel);
-                        questionContainer.append(answerDiv);
-                    });
-
-                    let feedbackText = questionData.answers.some(answer => answer.user_answer && answer.is_correct)
-                        ? questionData.feedback_correct
-                        : questionData.feedback_incorrect;
-
-                    let feedbackDiv = $('<div>', {
-                        class: 'alert ' + (feedbackText === questionData.feedback_correct ? 'alert-success' : 'alert-danger'),
-                        role: 'alert'
-                    }).text(feedbackText);
-
-                    questionContainer.append(feedbackDiv);
-                    createSlider(questionContainer, 'rating', 'Rate the question:', 'ratings[]');
-                    let br = $('<br>');
-                    questionContainer.append(br);
-                    createSlider(questionContainer, 'difficulty', 'Rate the difficulty:', 'difficulties[]');
-
-                    let timeTaken = $('<input>', {
-                        type: 'number',
-                        class: 'form-control mt-2',
-                        name: 'time_taken[]',
-                        placeholder: 'Time taken in seconds',
-                        value: questionData.time_taken ? questionData.time_taken : ''
-                    });
-                    questionContainer.append(timeTaken);
-
-                    let reviewTextarea = $('<textarea>', {
-                        class: 'form-control mt-2',
-                        name: 'reviews[]',
-                        rows: 2,
-                        placeholder: 'Leave your review here'
-                    });
-                    questionContainer.append(reviewTextarea);
-
-                    // Button to show creator details
-                    let showCreatorBtn = $('<button>', {
-                        type: 'button',
-                        class: 'btn btn-primary mt-2',
-                        text: 'Show Creator Details',
-                        click: function() {
-                            // AJAX to fetch and display creator details
-                            $.ajax({
-                                url: '../src/fetch_creator_details.php',
-                                method: 'GET',
-                                data: { question_id: questionId },
-                                dataType: 'json',
-                                success: function (creatorData) {
-                                    let creatorDetails = $('<div>', {class: 'creator-details mt-2'});
-                                    creatorDetails.append('<p><strong>Difficulty Level:</strong> ' + creatorData.difficulty_level + '</p>');
-                                    creatorDetails.append('<p><strong>Purpose:</strong> ' + creatorData.purpose + '</p>');
-                                    questionContainer.append(creatorDetails);
-                                    showCreatorBtn.hide(); // Hide the button after showing details
-                                },
-                                error: function (xhr, status, error) {
-                                    console.error('Error fetching creator details:', error);
-                                    console.log(xhr.responseText); // Log the complete response text
-                                }
-                            });
-                        }
-                    });
-                    questionContainer.append(showCreatorBtn);
-
-                    reviewsForm.append(questionContainer);
-                });
-
-                reviewsForm.append('<button type="submit" class="btn btn-primary mt-3">Save Review</button>');
-            },
-            error: function (xhr, status, error) {
-                console.error('Error fetching results:', error);
-                console.log(xhr.responseText); // Log the complete response text
-            }
-        });
-    });
-</script>
 </body>
 </html>

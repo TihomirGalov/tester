@@ -60,19 +60,66 @@
             <input type="text" class="form-control mb-4" id="testName" name="test_name">
         </div>
         <input type="file" id="csvFileInput" class="btn btn-secondary mb-3" accept=".csv">
-        <button class="btn btn-primary mb-4" onclick="createAndLoadTest()">Import CSV and Load Test</button>
+        <button type="button" class="btn btn-primary" id="importCsvBtn" style="display: none;" data-toggle="modal" data-target="#importModal">
+            Import CSV and Load Test
+        </button>
 
+        <!-- Modal -->
+        <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="importModalLabel">Import CSV and Load Test</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="importForm">
+                            <div class="form-group">
+                                <label for="questionRange">Question Range (e.g., 4-10)</label>
+                                <input type="text" class="form-control" id="questionRange" placeholder="Enter range">
+                            </div>
+                            <div id="errorContainer" class="alert alert-danger" style="display: none;"></div>
+                            <div class="form-group">
+                                <label for="creator">Creator</label>
+                                <select class="form-control" id="creator">
+                                    <!-- Options will be dynamically loaded -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="testPurpose">Test Purpose</label>
+                                <select class="form-control" id="testPurpose">
+                                    <!-- Options will be dynamically loaded -->
+                                </select>
+                            </div>
+                            <div id="totalCountContainer" class="mb-3"></div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="handleImport()">Import</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Add multiple choice drop down to assign the test to users -->
         <div class="form-group" id="assignUsersContainer">
             <label for="assignUsers">Assign Test to Users:</label>
             <select class="form-control" id="assignUsers" name="assign_users" multiple>
                 <option value="">Select Users</option>
             </select>
+            <div class="form-check mt-2">
+                <input type="checkbox" id="assignAllUsers" onclick="toggleAssignAll()"> Assign All Users
+            </div>
         </div>
     </div>
     <div id="export-buttons">
         <button class="btn btn-primary mr-2" onclick="exportTest('csv')">Export as CSV</button>
         <button class="btn btn-secondary mr-2" onclick="exportTest('xml')">Export as XML</button>
+    </div>
+    <div id="timer" class="alert alert-info" role="alert" style="display: none;">
+        Time Elapsed: <span id="timeElapsed">00:00</span>
     </div>
     <form id="questionsContainer" action="../src/submit_test.php" method="post">
         <!-- Dynamic questions will be generated here -->

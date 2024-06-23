@@ -14,6 +14,9 @@
 
         // Fetch the finished_exam_id from the session
         $finished_exam_id = $_SESSION['finished_exam_id'] ?? null;
+
+        // Fetch total time from session if calculated in fetch_results.php
+        $totalTimeInSeconds = $_SESSION['total_time'] ?? 0;
     ?>
 </head>
 <body>
@@ -60,8 +63,10 @@
         Your test has been submitted successfully!
     </div>
     <div class="alert alert-primary" role="alert">
-        Your score is: <strong
-            class="result"><?php echo isset($_SESSION['score']) ? $_SESSION['score'] : ''; ?></strong>
+        Your score is: <strong class="result"><?php echo isset($_SESSION['score']) ? $_SESSION['score'] : ''; ?></strong>
+    </div>
+    <div class="alert alert-info" role="alert">
+        Time to solve the exam: <strong><?php echo gmdate("H:i:s", $totalTimeInSeconds); ?></strong>
     </div>
     <form id="reviewsForm" action="../src/save_reviews.php" method="post">
         <!-- Questions and answers will be loaded here via AJAX -->
@@ -95,14 +100,12 @@
     }
 
     $(document).ready(function () {
-        console.log("dasdqw");
         $.ajax({
             url: '../src/fetch_results.php',
             method: 'GET',
             dataType: 'json',
             success: function (data) {
                 let reviewsForm = $('#reviewsForm');
-                console.log(data);
                 Object.keys(data).forEach(questionId => {
                     let questionData = data[questionId];
                     let questionContainer = $('<div>', {class: 'question-container mb-4'});
@@ -154,7 +157,8 @@
                         type: 'number',
                         class: 'form-control mt-2',
                         name: 'time_taken[]',
-                        placeholder: 'Time taken in seconds'
+                        placeholder: 'Time taken in seconds',
+                        value: questionData.time_taken ? questionData.time_taken : ''
                     });
                     questionContainer.append(timeTaken);
 
@@ -165,6 +169,35 @@
                         placeholder: 'Leave your review here'
                     });
                     questionContainer.append(reviewTextarea);
+
+                    // Button to show creator details
+                    let showCreatorBtn = $('<button>', {
+                        type: 'button',
+                        class: 'btn btn-primary mt-2',
+                        text: 'Show Creator Details',
+                        click: function() {
+                            // AJAX to fetch and display creator details
+                            $.ajax({
+                                url: '../src/fetch_creator_details.php',
+                                method: 'GET',
+                                data: { question_id: questionId },
+                                dataType: 'json',
+                                success: function (creatorData) {
+                                    let creatorDetails = $('<div>', {class: 'creator-details mt-2'});
+                                    creatorDetails.append('<p><strong>Difficulty Level:</strong> ' + creatorData.difficulty_level + '</p>');
+                                    creatorDetails.append('<p><strong>Purpose:</strong> ' + creatorData.purpose + '</p>');
+                                    questionContainer.append(creatorDetails);
+                                    showCreatorBtn.hide(); // Hide the button after showing details
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error('Error fetching creator details:', error);
+                                    console.log(xhr.responseText); // Log the complete response text
+                                }
+                            });
+                        }
+                    });
+                    questionContainer.append(showCreatorBtn);
+
                     reviewsForm.append(questionContainer);
                 });
 

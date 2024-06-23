@@ -56,9 +56,13 @@ function submitTest() {
         event.preventDefault();
 
         const formData = new FormData(event.target);
+        const timeTaken = captureTimeTaken();
+
+        formData.delete('time_taken');
 
         const data = {
             test_id: new URLSearchParams(window.location.search).get('test_id'),
+            time_taken: timeTaken,
             answers: Array.from(formData.entries()).reduce((obj, [key, value]) => {
                 if (!obj[key]) {
                     obj[key] = value;
@@ -70,6 +74,8 @@ function submitTest() {
                 return obj;
             }, {})
         };
+
+        console.error(data.answers);
 
         fetch('../src/submit_test.php', {
             method: 'POST',
@@ -86,8 +92,8 @@ function submitTest() {
             } else {
                 return response.json();
             }
-        }).catch(error => {
-            console.error('Error:', error);
+        // }).catch(error => {
+        //     console.error('Error:', error);
         });
     });
 }
@@ -195,8 +201,20 @@ function saveManualTest() {
         isValid = false;
         alert('Please provide a name for the test.');
     }
-    const options = document.getElementById('assignUsers').selectedOptions;
-    const users = Array.from(options).map(({value}) => value);
+
+    const assignAllCheckbox = document.getElementById('assignAllUsers');
+    let users = [];
+    if (assignAllCheckbox.checked) {
+        // If "Assign All Users" is checked, include all user IDs
+        const allOptions = document.getElementById('assignUsers').options;
+        for (let option of allOptions) {
+            users.push(option.value);
+        }
+    } else {
+        // Otherwise, include only selected user IDs
+        const selectedOptions = document.getElementById('assignUsers').selectedOptions;
+        users = Array.from(selectedOptions).map(({value}) => value);
+    }
 
     const data = {
         test_name: testName,
@@ -254,7 +272,7 @@ function saveManualTest() {
     if (!isValid) {
         return;
     }
-    //console.error(data)
+
     fetch('../src/save_manual_test.php', {
         method: 'POST',
         headers: {
@@ -270,11 +288,9 @@ function saveManualTest() {
         } else {
             return response.json();
         }
-    })
-    // .catch(error => {
-    //     console.error('Error:', error);
-    // });
-    // .catch(error => console.error('Error saving test:', error));
+    }).catch(error => {
+        console.error('Error:', error);
+    });
 }
 
 function createAndLoadTest() {
@@ -325,6 +341,22 @@ function showCreateTestOptions() {
     }
 }
 
+function toggleAssignAll() {
+    const assignAllCheckbox = document.getElementById('assignAllUsers');
+    const assignUsersSelect = document.getElementById('assignUsers');
+
+    if (assignAllCheckbox.checked) {
+        // Disable the multi-select and clear selected options
+        assignUsersSelect.disabled = true;
+        for (let option of assignUsersSelect.options) {
+            option.selected = true;
+        }
+    } else {
+        // Enable the multi-select
+        assignUsersSelect.disabled = false;
+    }
+}
+
 function loadAllUsers() {
     fetch('../src/load_all_users.php')
         .then(response => response.json())
@@ -347,12 +379,6 @@ function loadAllUsers() {
 document.addEventListener('DOMContentLoaded', function () {
     const createTestButton = document.querySelector('button[onclick="showCreateTestOptions()"]');
     createTestButton.addEventListener('click', createManualTest);
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    loadAllUsers();
-    loadTest();
-    submitTest();
 });
 
 function addSelectedQuestions() {
@@ -423,3 +449,219 @@ function fetchQuestionsByIds(questionIds) {
             });
         });
 }
+
+let lines = []; // Define lines outside the function
+let totalCount = 0; // Define total count of questions
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const text = e.target.result;
+            lines = text.split('\n').slice(1).map(line => line.split(','));
+            const creators = [...new Set(lines.map(line => line[1]).filter(creator => creator))];
+            populateDropdown('creator', creators);
+            document.getElementById('importCsvBtn').style.display = 'block';
+        };
+        reader.readAsText(file);
+    }
+}
+
+function populateDropdown(dropdownId, values) {
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.innerHTML = '';
+
+    // Add a blank option
+    const blankOption = document.createElement('option');
+    blankOption.text = '';
+    blankOption.value = '';
+    dropdown.add(blankOption);
+    values.forEach(value => {
+        const option = document.createElement('option');
+        // Remove leading and trailing quotation marks
+        option.text =  value.replace(/^"(.*)"$/, '$1');
+        option.value = value;
+        dropdown.add(option);
+    });
+    // Listen for changes in the creator dropdown
+    if (dropdownId === 'creator') {
+        dropdown.addEventListener('change', function () {
+            const selectedCreator = this.value;
+            // Filter purposes based on the selected creator
+            const filteredLines = lines
+                .filter(line => line[1] === selectedCreator) // Filter rows by selected creator
+                .map(line => line[3]);
+            const filteredPurposes = filteredLines// Extract purposes from filtered rows
+                .filter((purpose, index, self) => self.indexOf(purpose) === index); // Remove duplicates
+            const totalCount = filteredLines.length;
+            // Populate the testPurpose dropdown with filtered purposes
+            populateDropdown('testPurpose', filteredPurposes, selectedCreator);
+            // Update the total count of questions
+            updateTotalCount(totalCount);
+        });
+    }
+    // Listen for changes in the testPurpose dropdown
+    if (dropdownId === 'testPurpose') {
+        dropdown.addEventListener('change', function () {
+            const selectedCreator = document.getElementById('creator').value;
+            const selectedPurpose = this.value;
+            // Filter lines based on the selected creator and purpose
+            const filteredLines = lines.filter(line => line[1] === selectedCreator && line[3] === selectedPurpose);
+            // Count the number of questions for the selected creator and purpose
+            const totalCount = filteredLines.length;
+            updateTotalCount(totalCount);
+        });
+    }
+}
+
+function updateTotalCount(count) {
+    const totalCountContainer = document.getElementById('totalCountContainer');
+    if (count !== undefined) {
+        totalCountContainer.textContent = `Total Count of Questions: ${count}`;
+        totalCount = parseInt(count);
+    } else {
+        totalCountContainer.textContent = '';
+        totalCount = 0;
+    }
+}
+
+
+function handleImport() {
+    const range = document.getElementById('questionRange').value;
+    const [rangeStart, rangeEnd] = range.split('-').map(Number);
+    const errorContainer = document.getElementById('errorContainer');
+
+    console.error(rangeStart);
+    console.error(rangeEnd);
+    console.error(lines.length);
+    // Check if the range is valid
+    if (isNaN(rangeStart) || isNaN(rangeEnd) || rangeStart < 1 || rangeEnd < rangeStart || rangeEnd > totalCount) {
+        // Show error message
+        errorContainer.style.display = 'block';
+        errorContainer.textContent = 'Invalid range. Please enter a valid range between 1 and ' + totalCount + '.';
+        return;
+    } else {
+        // Hide error message if the range is valid
+        errorContainer.style.display = 'none';
+        errorContainer.textContent = '';
+    }
+
+    const questionRange = document.getElementById('questionRange').value;
+    const creator = document.getElementById('creator').value.replace(/^"(.*)"$/, '$1');
+    const testPurpose = document.getElementById('testPurpose').value.replace(/^"(.*)"$/, '$1');
+
+    const csvFileInput = document.getElementById('csvFileInput');
+    const file = csvFileInput.files[0];
+
+    if (!file) {
+        errorContainer.style.display = 'block';
+        errorContainer.textContent = 'Please select a CSV file to upload.';
+        return;
+    }
+
+    const formData = new FormData();
+    const options = document.getElementById('assignUsers').selectedOptions;
+    const users = Array.from(options).map(({value}) => value);
+
+    formData.append('csvFile', file);
+    formData.append('test_name', file.name.replace(/\.[^/.]+$/, "")); // Set test name as file name without extension
+    formData.append('users', JSON.stringify(users));
+    formData.append('question_range', questionRange);
+    formData.append('creator', creator);
+    formData.append('test_purpose', testPurpose);
+
+    fetch('../src/fetch_test.php', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.test_id) {
+                console.log(data);
+                window.location.href = `../public/test.html?test_id=${data.test_id}`;
+            } else {
+                console.error('Error creating test:', data.error);
+                errorContainer.style.display = 'block';
+                errorContainer.textContent = 'Error creating test: ' + data.error;
+            }
+        })
+        .catch(error => {
+            console.error('Error creating test:', error);
+            errorContainer.style.display = 'block';
+            errorContainer.textContent = 'Error creating test: ' + error.message;
+        });
+}
+
+// Global variables for timer
+let startTime = null;
+let timerInterval = null;
+
+// Function to start the timer
+function startTimer() {
+    startTime = new Date();
+    // Update time display every second
+    timerInterval = setInterval(updateTimeDisplay, 1000);
+}
+
+// Function to capture time taken in seconds
+function captureTimeTaken() {
+    if (!startTime) {
+        return 0;
+    }
+    const endTime = new Date();
+    return Math.floor((endTime - startTime) / 1000); // Time in seconds
+}
+
+// Function to update time display
+function updateTimeDisplay() {
+    const timeTaken = captureTimeTaken();
+    const timeDisplay = document.getElementById('timeElapsed');
+    if (timeDisplay) {
+        timeDisplay.textContent = formatTime(timeTaken);
+    }
+}
+
+// Function to format time in MM:SS format
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+// Function to show/hide time display based on URL parameter
+function toggleTimeDisplay() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const testId = urlParams.get('test_id');
+    const timeDisplay = document.getElementById('timer');
+    if (testId && timeDisplay) {
+        timeDisplay.style.display = 'block';
+    } else {
+        timeDisplay.style.display = 'none';
+    }
+}
+
+// Add event listener for form submission to include time taken
+document.getElementById('questionsContainer').addEventListener('submit', function(event) {
+    const timeTaken = captureTimeTaken();
+    const timeTakenInput = document.createElement('input');
+    timeTakenInput.type = 'hidden';
+    timeTakenInput.name = 'time_taken';
+    timeTakenInput.value = timeTaken;
+    event.target.appendChild(timeTakenInput);
+    clearInterval(timerInterval); // Stop the timer
+});
+
+// Add event listener for page load
+document.addEventListener('DOMContentLoaded', function () {
+    startTimer();
+    toggleTimeDisplay(); // Initially toggle time display based on URL parameter
+});
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    loadAllUsers();
+    loadTest();
+    submitTest();
+    document.getElementById('csvFileInput').addEventListener('change', handleFileSelect);
+});

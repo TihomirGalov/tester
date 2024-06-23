@@ -6,10 +6,20 @@ include '../includes/utilities.php';
 // Start the session
 session_start();
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) {
         $csvFile = $_FILES['csvFile']['tmp_name'];
         $testName = $_POST['test_name'];
+        $creator = $_POST['creator']; // Retrieve creator from POST
+        $testPurpose = $_POST['test_purpose']; // Retrieve test purpose from POST
+        list($questionRangeMin, $questionRangeMax) = explode('-', $_POST['question_range']);
+        $questionRangeMin = intval($questionRangeMin);
+        $questionRangeMax = intval($questionRangeMax);
+
         $handle = fopen($csvFile, "r");
 
         // Read the headers
@@ -36,7 +46,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
         $answerStmt = $conn->prepare("INSERT INTO answers (value, question_id, is_correct) VALUES (?, ?, ?)");
 
+        // Skip questions that are not due to criteria
         while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            if ($creator && $data[1] !== $creator) {
+                continue;
+            }
+            if ($testPurpose && $data[3] !== $testPurpose) {
+                continue;
+            }
+            break;
+        }
+
+        $questions_counter = 1;
+        // Skip the questions that are not in the range
+        while ($questions_counter < $questionRangeMin) {
+            $data = fgetcsv($handle, 1000, ",");
+            $questions_counter++;
+        }
+
+        while ($questions_counter <= $questionRangeMax) {
+            if ($creator && $data[1] !== $creator) {
+                continue;
+            }
+            if ($testPurpose && $data[3] !== $testPurpose) {
+                continue;
+            }
+
             $timestamp = date('Y-m-d H:i:s', strtotime($data[0]));
             $faculty_number = $data[1];
             $question_number = $data[2];
@@ -69,6 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $is_correct = ($index === $correct_answer_index) ? 1 : 0;
                 $answerStmt->bind_param("sii", $answer, $questionId, $is_correct);
                 $answerStmt->execute();
+            }
+
+            $questions_counter++;
+
+            if (!($data = fgetcsv($handle, 1000, ","))) {
+                break;
             }
         }
 

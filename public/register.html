@@ -19,17 +19,17 @@
         <div class="mb-3">
             <label for="username" class="form-label">Username:</label>
             <input type="text" class="form-control" id="username" name="username" required />
-            <div id="usernameError" class="error-message"></div>
+            <div id="usernameError" class="alert alert-danger d-none" role="alert"></div>
         </div>
         <div class="mb-3">
             <label for="email" class="form-label">Email:</label>
             <input type="email" class="form-control" id="email" name="email" required />
-            <div id="emailError" class="error-message"></div>
+            <div id="emailError" class="alert alert-danger d-none" role="alert"></div>
         </div>
         <div class="mb-3">
             <label for="faculty_number" class="form-label">Faculty Number:</label>
             <input type="text" class="form-control" id="faculty_number" name="faculty_number" required>
-            <div id="facultyNumberError" class="error-message"></div>
+            <div id="facultyNumberError" class="alert alert-danger d-none" role="alert"></div>
         </div>
         <div class="mb-3">
             <label for="password" class="form-label">Password:</label>
@@ -44,6 +44,8 @@
     function displayError(id, message) {
         const errorDiv = document.getElementById(id);
         errorDiv.innerHTML = message;
+        errorDiv.classList.remove('d-none');
+
     }
 </script>
 </body>

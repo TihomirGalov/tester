@@ -8,6 +8,34 @@ function sha256(plainText) {
     });
 }
 
+function startLoginListener(formName) {
+    const form = document.getElementById(formName);
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        hashPassword(form);
+
+        // Wait for all promises to resolve (hashing passwords)
+        Promise.all(promises).then(() => {
+            event.target.submit(); // Submit the form after hashing passwords
+        });
+    });
+}
+
+function hashPassword(form) {
+    promises = []; // Initialize promises array
+
+    const passwordFields = form.querySelectorAll('input[type="password"]');
+    passwordFields.forEach(field => {
+        if (field.value.trim() !== '') {
+            const promise = sha256(field.value).then(hashedPassword => {
+                field.value = hashedPassword;
+            });
+            promises.push(promise); // Add promise to array
+        }
+    });
+}
+
 function startEventListener(formName) {
     const form = document.getElementById(formName);
     form.addEventListener("submit", function (event) {
@@ -15,13 +43,21 @@ function startEventListener(formName) {
 
         // Reset error messages
         document.getElementById('usernameError').textContent = "";
+        document.getElementById('usernameError').classList.add('d-none');
+
         document.getElementById('emailError').textContent = "";
+        document.getElementById('emailError').classList.add('d-none');
+
         document.getElementById('facultyNumberError').textContent = "";
+        document.getElementById('facultyNumberError').classList.add('d-none');
+
         document.getElementById('registrationError').textContent = "";
+        document.getElementById('registrationError').classList.add('d-none');
 
-        const passwordFields = document.querySelectorAll('input[type="password"]');
-        const promises = [];
 
+        hashPassword(form);
+
+        // Wait for all promises to resolve (hashing passwords)
         Promise.all(promises).then(() => {
             fetch(form.action, {
                 method: form.method,
@@ -41,7 +77,7 @@ function startEventListener(formName) {
                         }
                     } else {
                         // Check if password fields were hashed, assuming they are named 'password'
-                        const passwordField = document.getElementById('password');
+                        const passwordField = form.querySelector('input[name="password"]');
                         if (passwordField.value !== '' && passwordField.value.length !== 64) {
                             // If password was not hashed (length !== 64), hash it
                             sha256(passwordField.value).then(hashedPassword => {
@@ -50,15 +86,6 @@ function startEventListener(formName) {
                                 window.location.href = '../public/index.html';
                             });
                         } else {
-                            // hash the password before it is sent to the BE
-                            passwordFields.forEach(field => {
-                                if (field.value.trim() !== '') {
-                                    const promise = sha256(field.value).then(hashedPassword => {
-                                        field.value = hashedPassword;
-                                    });
-                                    promises.push(promise);
-                                }
-                            });
                             window.location.href = '../public/login.html';
                         }
                     }
@@ -69,3 +96,4 @@ function startEventListener(formName) {
         });
     });
 }
+

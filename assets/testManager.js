@@ -104,6 +104,106 @@ function addQuestion(question = null, answers = null) {
     const questionDiv = document.createElement('div');
     questionDiv.className = 'form-group border p-3 mb-3';
 
+    // Add question purpose, number, difficulty_level, feedback_correct, feedback_incorrect and remarks
+    const questionPurposeLabel = document.createElement('label');
+    questionPurposeLabel.innerText = 'Question Purpose:';
+    questionDiv.appendChild(questionPurposeLabel);
+
+    const questionPurposeInput = document.createElement('input');
+    questionPurposeInput.type = 'text';
+    questionPurposeInput.className = 'form-control mb-2';
+    questionPurposeInput.name = 'question_purpose[]';
+    questionPurposeInput.value = question;
+    questionDiv.appendChild(questionPurposeInput);
+    // Add three dropdown options for question type (1, 2 and 3)
+    const questionTypeLabel = document.createElement('label');
+    questionTypeLabel.innerText = 'Question Type:';
+    questionDiv.appendChild(questionTypeLabel);
+
+    const questionTypeInput = document.createElement('select');
+    questionTypeInput.className = 'form-control mb-2';
+    questionTypeInput.name = 'question_type[]';
+    questionDiv.appendChild(questionTypeInput);
+
+    const option1 = document.createElement('option');
+    option1.value = 1;
+    option1.text = 'Before presentation';
+    questionTypeInput.appendChild(option1);
+
+    const option2 = document.createElement('option');
+    option2.value = 2;
+    option2.text = 'During presentation';
+    questionTypeInput.appendChild(option2);
+
+    const option3 = document.createElement('option');
+    option3.value = 3;
+    option3.text = 'After presentation';
+
+    const questionNumberLabel = document.createElement('label');
+    questionNumberLabel.innerText = 'Question Number:';
+    questionDiv.appendChild(questionNumberLabel);
+
+    const questionNumberInput = document.createElement('input');
+    questionNumberInput.type = 'number';
+    questionNumberInput.className = 'form-control mb-2';
+    questionNumberInput.name = 'question_number[]';
+    questionNumberInput.value = question;
+    questionDiv.appendChild(questionNumberInput);
+
+    const difficultyLevelLabel = document.createElement('label');
+    difficultyLevelLabel.innerText = 'Difficulty Level:';
+    questionDiv.appendChild(difficultyLevelLabel);
+
+    // Set difficulty as a slider with values from 1 to 5
+    const difficultyLevelInput = document.createElement('input');
+    difficultyLevelInput.type = 'range';
+    difficultyLevelInput.className = 'form-control-range mb-2';
+    difficultyLevelInput.name = 'difficulty_level[]';
+    difficultyLevelInput.min = -5;
+    difficultyLevelInput.max = 5;
+    difficultyLevelInput.value = 3;
+    // Add the number value next to the slider
+    const difficultyLevelValue = document.createElement('span');
+    difficultyLevelValue.innerText = difficultyLevelInput.value;
+    questionDiv.appendChild(difficultyLevelValue);
+    difficultyLevelInput.oninput = function () {
+        difficultyLevelValue.innerText = this.value;
+    }
+    questionDiv.appendChild(difficultyLevelInput);
+
+    const feedbackCorrectLabel = document.createElement('label');
+    feedbackCorrectLabel.innerText = 'Feedback Correct:';
+    questionDiv.appendChild(feedbackCorrectLabel);
+
+    const feedbackCorrectInput = document.createElement('input');
+    feedbackCorrectInput.type = 'text';
+    feedbackCorrectInput.className = 'form-control mb-2';
+    feedbackCorrectInput.name = 'feedback_correct[]';
+    feedbackCorrectInput.value = question;
+    questionDiv.appendChild(feedbackCorrectInput);
+
+    const feedbackIncorrectLabel = document.createElement('label');
+    feedbackIncorrectLabel.innerText = 'Feedback Incorrect:';
+    questionDiv.appendChild(feedbackIncorrectLabel);
+
+    const feedbackIncorrectInput = document.createElement('input');
+    feedbackIncorrectInput.type = 'text';
+    feedbackIncorrectInput.className = 'form-control mb-2';
+    feedbackIncorrectInput.name = 'feedback_incorrect[]';
+    feedbackIncorrectInput.value = question;
+    questionDiv.appendChild(feedbackIncorrectInput);
+
+    const remarksLabel = document.createElement('label');
+    remarksLabel.innerText = 'Remarks:';
+    questionDiv.appendChild(remarksLabel);
+
+    const remarksInput = document.createElement('input');
+    remarksInput.type = 'text';
+    remarksInput.className = 'form-control mb-2';
+    remarksInput.name = 'remarks[]';
+    remarksInput.value = question;
+    questionDiv.appendChild(remarksInput);
+
     const questionLabel = document.createElement('label');
     questionLabel.innerText = 'Question:';
     questionDiv.appendChild(questionLabel);

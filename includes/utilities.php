@@ -45,6 +45,8 @@ function createTest($test_name, $questionsData, $createdBy) {
     // Prepare statements for inserting questions and answers
     $stmtQuestion = $conn->prepare("INSERT INTO questions (description, test_id) VALUES (?, ?)");
     $stmtAnswer = $conn->prepare("INSERT INTO answers (question_id, value, is_correct) VALUES (?, ?, ?)");
+    $stmtQDetails = $conn->prepare("INSERT INTO question_details (question_id, faculty_number, question_number, purpose, type, correct_answer, difficulty_level, feedback_correct, feedback_incorrect, remarks) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
 
     foreach ($questionsData as $questionData) {
         $question = $questionData['question'];

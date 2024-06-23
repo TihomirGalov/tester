@@ -102,7 +102,6 @@ $stmt_min_id->close();
 $current_answer_id = $min_id;
 
 foreach ($answers as $key => $value) {
-    error_log("Correct answer is: $correct_answer for question with id $question_id");
     // Prepare the update query for the current answer
     $sql_update = "UPDATE answers SET value = ?, is_correct = ? WHERE id = ? AND question_id = ?";
     $stmt_update = $conn->prepare($sql_update);

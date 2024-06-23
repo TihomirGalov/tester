@@ -98,6 +98,7 @@ function submitTest() {
     });
 }
 
+// @TODO Add a function to fetch question data from the database
 function addQuestion(question = null, answers = null) {
     const questionsContainer = document.getElementById('questionsContainer');
     const questionsCount = document.getElementsByClassName('form-group border p-3 mb-3').length;
@@ -113,7 +114,7 @@ function addQuestion(question = null, answers = null) {
     questionPurposeInput.type = 'text';
     questionPurposeInput.className = 'form-control mb-2';
     questionPurposeInput.name = 'question_purpose[]';
-    questionPurposeInput.value = question;
+    questionPurposeInput.value = '';
     questionDiv.appendChild(questionPurposeInput);
     // Add three dropdown options for question type (1, 2 and 3)
     const questionTypeLabel = document.createElement('label');
@@ -139,16 +140,6 @@ function addQuestion(question = null, answers = null) {
     option3.value = 3;
     option3.text = 'After presentation';
 
-    const questionNumberLabel = document.createElement('label');
-    questionNumberLabel.innerText = 'Question Number:';
-    questionDiv.appendChild(questionNumberLabel);
-
-    const questionNumberInput = document.createElement('input');
-    questionNumberInput.type = 'number';
-    questionNumberInput.className = 'form-control mb-2';
-    questionNumberInput.name = 'question_number[]';
-    questionNumberInput.value = question;
-    questionDiv.appendChild(questionNumberInput);
 
     const difficultyLevelLabel = document.createElement('label');
     difficultyLevelLabel.innerText = 'Difficulty Level:';
@@ -179,7 +170,7 @@ function addQuestion(question = null, answers = null) {
     feedbackCorrectInput.type = 'text';
     feedbackCorrectInput.className = 'form-control mb-2';
     feedbackCorrectInput.name = 'feedback_correct[]';
-    feedbackCorrectInput.value = question;
+    feedbackCorrectInput.value = '';
     questionDiv.appendChild(feedbackCorrectInput);
 
     const feedbackIncorrectLabel = document.createElement('label');
@@ -190,7 +181,7 @@ function addQuestion(question = null, answers = null) {
     feedbackIncorrectInput.type = 'text';
     feedbackIncorrectInput.className = 'form-control mb-2';
     feedbackIncorrectInput.name = 'feedback_incorrect[]';
-    feedbackIncorrectInput.value = question;
+    feedbackIncorrectInput.value = '';
     questionDiv.appendChild(feedbackIncorrectInput);
 
     const remarksLabel = document.createElement('label');
@@ -201,7 +192,7 @@ function addQuestion(question = null, answers = null) {
     remarksInput.type = 'text';
     remarksInput.className = 'form-control mb-2';
     remarksInput.name = 'remarks[]';
-    remarksInput.value = question;
+    remarksInput.value = ''
     questionDiv.appendChild(remarksInput);
 
     const questionLabel = document.createElement('label');
@@ -212,7 +203,11 @@ function addQuestion(question = null, answers = null) {
     questionInput.type = 'text';
     questionInput.className = 'form-control mb-2';
     questionInput.name = 'questions[]';
-    questionInput.value = question;
+    if (typeof question === 'string') {
+        questionInput.value = question;
+    } else {
+        questionInput.value = '';
+    }
     questionDiv.appendChild(questionInput);
 
     const answersDiv = document.createElement('div');
@@ -321,7 +316,13 @@ function saveManualTest() {
         users: users,
         questions: [],
         answers: [],
-        correct_answers: []
+        correct_answers: [],
+        question_purposes: [],
+        question_types: [],
+        difficulty_levels: [],
+        feedbacks_correct: [],
+        feedbacks_incorrect: [],
+        remarks: []
     };
 
     formData.forEach((value, key) => {
@@ -343,6 +344,18 @@ function saveManualTest() {
             data.answers[data.questions.length - 1][answerIndex] = value;
         } else if (key.startsWith('correct_answers')) {
             data.correct_answers[data.questions.length - 1] = value;
+        } else if (key.startsWith('question_purpose')) {
+            data.question_purposes.push(value);
+        } else if (key.startsWith('question_type')) {
+            data.question_types.push(value);
+        } else if (key.startsWith('difficulty_level')) {
+            data.difficulty_levels.push(value);
+        } else if (key.startsWith('feedback_correct')) {
+            data.feedbacks_correct.push(value);
+        } else if (key.startsWith('feedback_incorrect')) {
+            data.feedbacks_incorrect.push(value);
+        } else if (key.startsWith('remarks')) {
+            data.remarks.push(value);
         }
     });
 
@@ -544,7 +557,6 @@ function fetchQuestionsByIds(questionIds) {
         .then(data => {
             //Response from the server: [{"id":329,"test_id":17,"description":"\u041a\u0430\u043a\u0432\u043e \u043e\u0437\u043d\u0430\u0447\u0430\u0432\u0430 CSSOM?","answers":[{"value":"Cascading Style Sheets Optimization Method","question_id":329,"is_correct":0,"id":1301},{"value":"CSS Object Model ","question_id":329,"is_correct":1,"id":1302},{"value":"Custom Style Sheets Object Management","question_id":329,"is_correct":0,"id":1303},{"value":"Computed Style Sheets Object Mapping","question_id":329,"is_correct":0,"id":1304}]}]
             data.forEach(question => {
-                console.log("HEREQ");
                 addQuestion(question.description, question.answers);
             });
         });
@@ -678,7 +690,6 @@ function handleImport() {
         .then(response => response.json())
         .then(data => {
             if (data.test_id) {
-                console.log(data);
                 window.location.href = `../public/test.html?test_id=${data.test_id}`;
             } else {
                 console.error('Error creating test:', data.error);

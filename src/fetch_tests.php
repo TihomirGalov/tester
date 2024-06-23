@@ -43,7 +43,7 @@ if ($result_assigned->num_rows > 0) {
 $stmt_assigned->close();
 
 // Fetch tests solved by the logged-in user
-$sql_solved = 'SELECT tests.name, tests.id
+$sql_solved = 'SELECT tests.name, finished_exams.id
                 FROM finished_exams
                 INNER JOIN tests ON finished_exams.test_id = tests.id
                 WHERE finished_exams.user_id = ?';

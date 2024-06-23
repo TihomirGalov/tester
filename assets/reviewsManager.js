@@ -1,81 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Results Page</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <?php
-        session_start();
-        if (!isset($_SESSION['loggedIn']) || !$_SESSION['loggedIn'] || !$_SESSION['user_id']) {
-            header("Location: login.html");
-            exit();
-        }
-
-        // Fetch the finished_exam_id from the session
-        $finished_exam_id = $_SESSION['finished_exam_id'] ?? null;
-
-        // Fetch total time from session if calculated in fetch_results.php
-        $totalTimeInSeconds = $_SESSION['total_time'] ?? 0;
-    ?>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="../assets/reviewsManager.js"></script>
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container">
-        <a class="navbar-brand" href="index.html">Test Generator</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.html">Home</a>
-                </li>
-                <?php if(isset($_SESSION['loggedIn']) && $_SESSION['loggedIn']) : ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="../src/logout.php">Logout</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="settings.html">Settings</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="test.html">Test</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="questions.html">Questions</a>
-                </li>
-                <?php else : ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="login.html">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="register.html">Register</a>
-                </li>
-                <?php endif; ?>
-            </ul>
-        </div>
-    </div>
-</nav>
-<div class="container mt-5">
-    <h1 class="mb-4">Results Page</h1>
-    <div class="alert alert-success" role="alert">
-        Your test has been submitted successfully!
-    </div>
-    <div class="alert alert-primary" role="alert">
-        Your score is: <strong
-            class="result"><?php echo isset($_SESSION['score']) ? $_SESSION['score'] : ''; ?></strong>
-    </div>
-    <form id="reviewsForm" action="../src/save_reviews.php" method="post">
-        <!-- Questions and answers will be loaded here via AJAX -->
-    </form>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script>
-    function createSlider(container, name, text, plural) {
+    function createSlider(container, name, text, plural, initialValue) {
         let label = $('<label>', {
             class: 'form-label mt-3',
             for: name,
@@ -87,15 +10,15 @@
             name: plural,
             min: -5,
             max: 5,
-            value: 0,
+            value: initialValue,
             oninput: 'this.nextElementSibling.value = this.value'
         });
         container.append(slider);
         const value = $('<output>', {
             class: 'form-range-value',
             for: name,
-            value: 0
-        }).text(0);
+            value: initialValue
+        }).text(initialValue);
         container.append(value);
     }
 
@@ -108,7 +31,6 @@
             dataType: 'json',
             success: function (data) {
                 let reviewsForm = $('#reviewsForm');
-                console.log(data);
                 Object.keys(data).forEach(questionId => {
                     let questionData = data[questionId];
                     let questionContainer = $('<div>', {class: 'question-container mb-4'});
@@ -151,16 +73,17 @@
                     }).text(feedbackText);
 
                     questionContainer.append(feedbackDiv);
-                    createSlider(questionContainer, 'rating', 'Rate the question:', 'ratings[]');
+                    createSlider(questionContainer, 'rating', 'Rate the question:', 'ratings[]', questionData.rating);
                     let br = $('<br>');
                     questionContainer.append(br);
-                    createSlider(questionContainer, 'difficulty', 'Rate the difficulty:', 'difficulties[]');
+                    createSlider(questionContainer, 'difficulty', 'Rate the difficulty:', 'difficulties[]', questionData.difficulty);
 
                     let timeTaken = $('<input>', {
                         type: 'number',
                         class: 'form-control mt-2',
                         name: 'time_taken[]',
-                        placeholder: 'Time taken in seconds'
+                        placeholder: 'Time taken in seconds',
+                        value: questionData.time_taken,
                     });
                     questionContainer.append(timeTaken);
 
@@ -168,8 +91,8 @@
                         class: 'form-control mt-2',
                         name: 'reviews[]',
                         rows: 2,
-                        placeholder: 'Leave your review here'
-                    });
+                        placeholder: 'Leave your review here',
+                    }).text(questionData.review);
                     questionContainer.append(reviewTextarea);
                     reviewsForm.append(questionContainer);
                 });
@@ -182,6 +105,3 @@
             }
         });
     });
-</script>
-</body>
-</html>

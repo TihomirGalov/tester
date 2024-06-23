@@ -117,7 +117,7 @@ CREATE TABLE `users` (
   `email` varchar(128) NOT NULL,
   `password` varchar(512) NOT NULL,
   `nickname` varchar(128) NOT NULL,
-  `faculty_number` varchar(50),
+  `faculty_number` varchar(50) UNIQUE,
   `id` int(11) NOT NULL,
   `can_create_test` tinyint(1) NOT NULL DEFAULT 1,
   `avatar` blob DEFAULT NULL

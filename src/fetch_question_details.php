@@ -1,4 +1,5 @@
 <?php
+session_start();
 global $conn;
 include '../includes/db.php';
 
@@ -8,18 +9,20 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$query = "SELECT qd.*, q.description, GROUP_CONCAT(a.value SEPARATOR '|') AS answers 
+$query = "SELECT qd.*, q.description, t.created_by AS creator_id, GROUP_CONCAT(a.value SEPARATOR '|') AS answers 
             FROM question_details qd 
             JOIN questions q ON qd.question_id = q.id 
             JOIN answers a ON qd.question_id = a.question_id 
+            JOIN tests t ON q.test_id = t.id
             WHERE qd.question_id = ? 
-            GROUP BY qd.id, q.description";
+            GROUP BY qd.id, q.description, t.created_by";
 $stmt = $conn->prepare($query);
 $stmt->bind_param('i', $questionId);
 $stmt->execute();
 $result = $stmt->get_result();
 
 $fields = array();
+$created_by = null;
 while ($row = $result->fetch_assoc()) {
     $fields[] = array(
         'name' => 'description',
@@ -81,8 +84,9 @@ while ($row = $result->fetch_assoc()) {
         'type' => 'text',
         'value' => $row['remarks']
     );
-}
 
+    $created_by = $row['creator_id'];
+}
 $stmt->close();
 
 $aggQuery = "SELECT AVG(rating) AS rating, AVG(difficulty) as difficulty, AVG(time_taken) as time_taken FROM reviews WHERE question_id = ? GROUP BY question_id;";
@@ -128,7 +132,6 @@ $reviews = array();
 while ($row = $result->fetch_assoc()) {
     $reviews[] = $row['review'];
 }
-
 $fields[] = array(
     'name' => 'reviews',
     'label' => 'Отзиви',
@@ -136,5 +139,10 @@ $fields[] = array(
     'value' => $reviews
 );
 
-echo json_encode($fields);
+$response = array(
+    'fields' => $fields,
+    'creator_id' => $created_by
+);
+
+echo json_encode($response);
 ?>

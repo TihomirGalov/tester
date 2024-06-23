@@ -8,6 +8,7 @@ session_start();
 
 $usernameError = "";
 $emailError = "";
+$facultyNumberError = "";
 
 // Retrieve form data
 if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['email']) && isset($_POST['faculty_number'])) {
@@ -18,12 +19,14 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['emai
 
     // Validate input (server-side)
     if (empty($username) || empty($hashed_password) || empty($email) || empty($faculty_number)) {
-        $usernameError = "Username, email, password, and faculty number are required.";
+        $registrationError = "Username, email, password, and faculty number are required.";
+        echo json_encode(array("error" => $registrationError));
+        exit;
     } else {
         // Check for existing username and email
-        $sql = "SELECT * FROM users WHERE nickname = ? OR email = ?";
+        $sql = "SELECT * FROM users WHERE nickname = ? OR email = ? or faculty_number = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $username, $email);
+        $stmt->bind_param("sss", $username, $email, $faculty_number);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -31,11 +34,18 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['emai
             while($row = $result->fetch_assoc()) {
                 if ($row["nickname"] === $username) {
                     $usernameError = "Username already exists.";
-                    handleRegistrationError($usernameError);
+                    echo json_encode(array("field" => "username", "error" => $usernameError));
+                    exit;
                 }
                 if ($row["email"] === $email) {
                     $emailError = "Email already exists.";
-                    handleRegistrationError($emailError);
+                    echo json_encode(array("field" => "email", "error" => $emailError));
+                    exit;
+                }
+                if ($row["faculty_number"] === $faculty_number) {
+                    $facultyNumberError = "Faculty number already exists.";
+                    echo json_encode(array("field" => "faculty_number", "error" => $facultyNumberError));
+                    exit;
                 }
             }
         }
@@ -54,15 +64,17 @@ if (isset($_POST['username']) && isset($_POST['password']) && isset($_POST['emai
             $_SESSION['loggedin'] = true;
             $_SESSION['user_id'] = $user_id;
 
-            // Redirect to index.html upon successful registration
-            header("Location: ../public/index.html");
+            // Respond with success message
+            echo json_encode(array("success" => "User registered successfully."));
             exit;
         } else {
-            echo "Error: ". $stmt->error;
+            echo json_encode(array("error" => "Error registering user."));
+            exit;
         }
     }
 } else {
-    echo "No data received";
+    echo json_encode(array("error" => "No data received"));
+    exit;
 }
 
 $conn->close();

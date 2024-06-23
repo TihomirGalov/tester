@@ -94,6 +94,35 @@ $(document).ready(function () {
                     placeholder: 'Leave your review here',
                 }).text(questionData.review);
                 questionContainer.append(reviewTextarea);
+
+                // Button to show creator details
+                let showCreatorBtn = $('<button>', {
+                    type: 'button',
+                    class: 'btn btn-primary mt-2',
+                    text: 'Show Creator Details',
+                    click: function () {
+                        // AJAX to fetch and display creator details
+                        $.ajax({
+                            url: '../src/fetch_creator_details.php',
+                            method: 'GET',
+                            data: {question_id: questionId},
+                            dataType: 'json',
+                            success: function (creatorData) {
+                                let creatorDetails = $('<div>', {class: 'creator-details mt-2'});
+                                creatorDetails.append('<p><strong>Difficulty Level:</strong> ' + creatorData.difficulty_level + '</p>');
+                                creatorDetails.append('<p><strong>Purpose:</strong> ' + creatorData.purpose + '</p>');
+                                questionContainer.append(creatorDetails);
+                                showCreatorBtn.hide(); // Hide the button after showing details
+                            },
+                            error: function (xhr, status, error) {
+                                console.error('Error fetching creator details:', error);
+                                console.log(xhr.responseText); // Log the complete response text
+                            }
+                        });
+                    }
+                });
+
+                questionContainer.append(showCreatorBtn);
                 reviewsForm.append(questionContainer);
             });
 

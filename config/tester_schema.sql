@@ -37,19 +37,6 @@ CREATE TABLE `answers` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `comments`
---
-
-CREATE TABLE `comments` (
-  `question_id` int(11) NOT NULL,
-  `creator_id` int(11) NOT NULL,
-  `created` datetime NOT NULL DEFAULT current_timestamp(),
-  `description` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `finished_exams`
 --
 
@@ -193,14 +180,6 @@ ALTER TABLE `answers`
   ADD PRIMARY KEY (`id`),
   ADD KEY `answers_question_id` (`question_id`);
 
---
--- Indexes for table `comments`
---
-ALTER TABLE `comments`
-  ADD KEY `comments_question_id` (`question_id`),
-  ADD KEY `comments_creator_id` (`creator_id`);
-
---
 -- Indexes for table `finished_exams`
 --
 ALTER TABLE `finished_exams`
@@ -312,13 +291,6 @@ ALTER TABLE `reviews`
 --
 ALTER TABLE `answers`
   ADD CONSTRAINT `FK_answers_questions` FOREIGN KEY (`question_id`) REFERENCES `questions` (`id`);
-
---
--- Constraints for table `comments`
---
-ALTER TABLE `comments`
-  ADD CONSTRAINT `FK_comments_users` FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_comments_questions` FOREIGN KEY (`question_id`) REFERENCES `questions` (`id`);
 
 --
 -- Constraints for table `finished_exams`

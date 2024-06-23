@@ -92,8 +92,6 @@ $htmlContent .= '<div class="mt-3">';
 $htmlContent .= '<h3>Tests Solved by You</h3>';
 if (!empty($userTestsSolved)) {
     foreach ($userTestsSolved as $testSolved) {
-        // Load results.html     $_SESSION['score'] = $score;
-        //    $_SESSION['finished_exam_id'] = $exam_id;
         $htmlContent .= '<a href="results.html?test_id=' . $testSolved['id'] . '" class="btn btn-primary mb-2">Test ' . $testSolved['name'] . '</a>';
     }
 } else {

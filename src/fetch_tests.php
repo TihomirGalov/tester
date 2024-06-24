@@ -1,7 +1,6 @@
 <?php
 global $conn;
 
-// Include your database connection script
 include '../includes/db.php';
 
 // Fetch user ID from session

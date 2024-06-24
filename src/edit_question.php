@@ -24,30 +24,3 @@ if ($result->num_rows === 0) {
 
 $question = $result->fetch_assoc();
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Question</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<div class="container mt-5">
-    <h2>Edit Question</h2>
-    <form action="../src/update_question.php" method="post">
-        <input type="hidden" name="id" value="<?php echo $question['id']; ?>">
-        <div class="mb-3">
-            <label for="description" class="form-label">Description:</label>
-            <textarea class="form-control" id="description" name="description" rows="3"><?php echo $question['description']; ?></textarea>
-        </div>
-        <!-- Other fields of the question can be added here for editing -->
-        <button type="submit" class="btn btn-primary">Update</button>
-    </form>
-</div>
-<!-- Bootstrap JS (Optional, only required if you have interactive Bootstrap components) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>

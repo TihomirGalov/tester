@@ -1,7 +1,9 @@
 <?php
 global $conn;
-session_start();
+
 include '../includes/db.php';
+
+session_start();
 
 if (isset($_POST['username'])) {
     $username = $_POST['username'];

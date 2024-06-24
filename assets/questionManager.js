@@ -3,15 +3,11 @@ function fetchQuestionDetails(questionId) {
     fetch(`../src/fetch_question_details.php?id=${questionId}`)
         .then(response => response.json())
         .then(data => {
-            console.error(data);
-
             const questionForm = document.getElementById('questionForm');
             questionForm.innerHTML = ''; // Clear previous form fields
 
             const fields = data.fields;
             const creatorId = data.creator_id;
-            console.error("Fields: ", fields);
-            console.error("Creator: ", creatorId);
             // Check if the current user is the creator
             let currentUserId = null;
 
@@ -22,7 +18,6 @@ function fetchQuestionDetails(questionId) {
                 dataType: 'json',
                 success: function(response) {
                     currentUserId = response.user_id;
-                    console.error("Current user id: ", currentUserId);
                     populateForm(fields, creatorId, currentUserId);
                 },
                 error: function(xhr, status, error) {
@@ -127,14 +122,19 @@ function fetchAllQuestions() {
         .then(response => response.json())
         .then(data => {
             const questionList = document.getElementById('questionList');
+            questionList.innerHTML = ''; // Clear existing questions
+
             data.forEach(question => {
+                const rating = typeof question.rating === 'number' ? question.rating.toFixed(2) : '0.00';
+
                 const questionButton = document.createElement('button');
                 questionButton.type = 'button';
                 questionButton.className = 'list-group-item list-group-item-action';
-                questionButton.innerText = question.description + ' - ' + question.rating;
+                questionButton.innerText = `${question.test_name}: ${question.description} - ${rating}`;
                 questionButton.addEventListener('click', function () {
                     window.location.href = `question_details.html?id=${question.id}`;
                 });
+
                 questionList.appendChild(questionButton);
             });
         })

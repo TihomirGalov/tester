@@ -5,10 +5,6 @@ include '../includes/db.php';
 
 $questionId = $_GET['id'];
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 $query = "SELECT qd.*, q.description, t.created_by AS creator_id, GROUP_CONCAT(a.value SEPARATOR '|') AS answers 
             FROM question_details qd 
             JOIN questions q ON qd.question_id = q.id 

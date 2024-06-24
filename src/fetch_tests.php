@@ -66,9 +66,14 @@ $htmlContent = '';
 $htmlContent .= '<div class="mt-3">';
 $htmlContent .= '<h3>Tests Created by You</h3>';
 if (!empty($userTestsCreated)) {
+    $htmlContent .= '<ul class="list-group">';
     foreach ($userTestsCreated as $testCreated) {
-        $htmlContent .= '<a href="test.html?test_id=' . $testCreated['id'] . '" class="btn btn-primary mb-2">Test ' . $testCreated['name'] . '</a>';
+        $htmlContent .= '<li class="list-group-item">';
+        $htmlContent .= '<span>' . $testCreated['name'] . '</span>';
+        $htmlContent .= '<a href="test.html?test_id=' . $testCreated['id'] . '" class="badge ">Edit</a>';
+        $htmlContent .= '</li>';
     }
+    $htmlContent .= '</ul>';
 } else {
     $htmlContent .= '<p>No tests created by you.</p>';
 }
@@ -78,9 +83,14 @@ $htmlContent .= '</div>';
 $htmlContent .= '<div class="mt-3">';
 $htmlContent .= '<h3>Tests Assigned to You</h3>';
 if (!empty($userTestsAssigned)) {
+    $htmlContent .= '<ul class="list-group">';
     foreach ($userTestsAssigned as $testAssigned) {
-        $htmlContent .= '<a href="test.html?test_id=' . $testAssigned['id'] . '" class="btn btn-primary mb-2">Test ' . $testAssigned['name'] . '</a>';
+        $htmlContent .= '<li class="list-group-item">';
+        $htmlContent .= '<span>' . $testAssigned['name'] . '</span>';
+        $htmlContent .= '<a href="test.html?test_id=' . $testAssigned['id'] . '" class="badge">Solve</a>';
+        $htmlContent .= '</li>';
     }
+    $htmlContent .= '</ul>';
 } else {
     $htmlContent .= '<p>No tests assigned to you.</p>';
 }
@@ -90,12 +100,19 @@ $htmlContent .= '</div>';
 $htmlContent .= '<div class="mt-3">';
 $htmlContent .= '<h3>Tests Solved by You</h3>';
 if (!empty($userTestsSolved)) {
+    $htmlContent .= '<ul class="list-group">';
     foreach ($userTestsSolved as $testSolved) {
-        $htmlContent .= '<a href="results.html?test_id=' . $testSolved['id'] . '" class="btn btn-primary mb-2">Test ' . $testSolved['name'] . '</a>';
+        $htmlContent .= '<li class="list-group-item">';
+        $htmlContent .= '<span>' . $testSolved['name'] . '</span>';
+        $htmlContent .= '<a href="results.html?test_id=' . $testSolved['id'] . '" class="badge">View Results</a>';
+        $htmlContent .= '</li>';
     }
+    $htmlContent .= '</ul>';
 } else {
     $htmlContent .= '<p>No tests solved by you.</p>';
 }
+$htmlContent .= '</div>';
+
 // Return the HTML content
 echo $htmlContent;
 ?>

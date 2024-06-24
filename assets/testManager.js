@@ -99,7 +99,7 @@ function submitTest() {
 }
 
 // @TODO Add a function to fetch question data from the database
-function addQuestion(question = null, answers = null) {
+function addQuestion(question = '', answers = '', purpose = '', type = '', difficultyLevel = 0, feedbackCorrect = '', feedbackIncorrect = '', remarks = '') {
     const questionsContainer = document.getElementById('questionsContainer');
     const questionsCount = document.getElementsByClassName('form-group border p-3 mb-3').length;
     const questionDiv = document.createElement('div');
@@ -114,7 +114,7 @@ function addQuestion(question = null, answers = null) {
     questionPurposeInput.type = 'text';
     questionPurposeInput.className = 'form-control mb-2';
     questionPurposeInput.name = 'question_purpose[]';
-    questionPurposeInput.value = '';
+    questionPurposeInput.value = purpose;
     questionDiv.appendChild(questionPurposeInput);
     // Add three dropdown options for question type (1, 2 and 3)
     const questionTypeLabel = document.createElement('label');
@@ -124,7 +124,7 @@ function addQuestion(question = null, answers = null) {
     const questionTypeInput = document.createElement('select');
     questionTypeInput.className = 'form-control mb-2';
     questionTypeInput.name = 'question_type[]';
-    questionDiv.appendChild(questionTypeInput);
+
 
     const option1 = document.createElement('option');
     option1.value = 1;
@@ -139,6 +139,10 @@ function addQuestion(question = null, answers = null) {
     const option3 = document.createElement('option');
     option3.value = 3;
     option3.text = 'After presentation';
+    questionTypeInput.appendChild(option3)
+
+    questionTypeInput.value = type;
+    questionDiv.appendChild(questionTypeInput);
 
 
     const difficultyLevelLabel = document.createElement('label');
@@ -152,7 +156,7 @@ function addQuestion(question = null, answers = null) {
     difficultyLevelInput.name = 'difficulty_level[]';
     difficultyLevelInput.min = -5;
     difficultyLevelInput.max = 5;
-    difficultyLevelInput.value = 3;
+    difficultyLevelInput.value = difficultyLevel;
     // Add the number value next to the slider
     const difficultyLevelValue = document.createElement('span');
     difficultyLevelValue.innerText = difficultyLevelInput.value;
@@ -170,7 +174,7 @@ function addQuestion(question = null, answers = null) {
     feedbackCorrectInput.type = 'text';
     feedbackCorrectInput.className = 'form-control mb-2';
     feedbackCorrectInput.name = 'feedback_correct[]';
-    feedbackCorrectInput.value = '';
+    feedbackCorrectInput.value = feedbackCorrect;
     questionDiv.appendChild(feedbackCorrectInput);
 
     const feedbackIncorrectLabel = document.createElement('label');
@@ -181,7 +185,7 @@ function addQuestion(question = null, answers = null) {
     feedbackIncorrectInput.type = 'text';
     feedbackIncorrectInput.className = 'form-control mb-2';
     feedbackIncorrectInput.name = 'feedback_incorrect[]';
-    feedbackIncorrectInput.value = '';
+    feedbackIncorrectInput.value = feedbackIncorrect;
     questionDiv.appendChild(feedbackIncorrectInput);
 
     const remarksLabel = document.createElement('label');
@@ -192,7 +196,7 @@ function addQuestion(question = null, answers = null) {
     remarksInput.type = 'text';
     remarksInput.className = 'form-control mb-2';
     remarksInput.name = 'remarks[]';
-    remarksInput.value = ''
+    remarksInput.value = remarks;
     questionDiv.appendChild(remarksInput);
 
     const questionLabel = document.createElement('label');
@@ -557,7 +561,16 @@ function fetchQuestionsByIds(questionIds) {
         .then(data => {
             //Response from the server: [{"id":329,"test_id":17,"description":"\u041a\u0430\u043a\u0432\u043e \u043e\u0437\u043d\u0430\u0447\u0430\u0432\u0430 CSSOM?","answers":[{"value":"Cascading Style Sheets Optimization Method","question_id":329,"is_correct":0,"id":1301},{"value":"CSS Object Model ","question_id":329,"is_correct":1,"id":1302},{"value":"Custom Style Sheets Object Management","question_id":329,"is_correct":0,"id":1303},{"value":"Computed Style Sheets Object Mapping","question_id":329,"is_correct":0,"id":1304}]}]
             data.forEach(question => {
-                addQuestion(question.description, question.answers);
+                addQuestion(
+                    question.description,
+                    question.answers,
+                    question.purpose,
+                    question.type,
+                    question.difficulty_level,
+                    question.feedback_correct,
+                    question.feedback_incorrect,
+                    question.remarks
+                )
             });
         });
 }

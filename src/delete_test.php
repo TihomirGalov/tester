@@ -10,8 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 
     $testId = $_GET['test_id'];
     if (isset($testId)) {
-
-        deleteTest($testId);
+        $userId = $_SESSION['user_id'];
+        deleteTest($testId, $userId);
 
         header("Location: ../public/index.html");
     } else {

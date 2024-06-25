@@ -16,11 +16,11 @@ function fetchQuestionDetails(questionId) {
                 url: '../src/get_user_id.php',
                 method: 'GET',
                 dataType: 'json',
-                success: function(response) {
+                success: function (response) {
                     currentUserId = response.user_id;
                     populateForm(fields, creatorId, currentUserId);
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error fetching user ID:', error);
                 }
             });
@@ -69,33 +69,28 @@ function fetchQuestionDetails(questionId) {
                         }
                         divFormGroup.appendChild(radioContainer);
 
-                        if (field.name === 'difficulty_level') {
+                        if (field.name === 'type') {
                             const difficultyExplanation = document.createElement('small');
                             difficultyExplanation.className = 'form-text text-muted';
-                            difficultyExplanation.innerText = '(1 много лесен - 5 много труден)';
-                            divFormGroup.appendChild(difficultyExplanation);
-                        } else if (field.name === 'type') {
-                            const difficultyExplanation = document.createElement('small');
-                            difficultyExplanation.className = 'form-text text-muted';
-                            difficultyExplanation.innerText = '(1 - За предварителни знания; 2 - по време на презентацията; 3 - след презентацията )';
+                            difficultyExplanation.innerText = '(1 - For prior knowledge; 2 - during the presentation; 3 - after the presentation)';
                             divFormGroup.appendChild(difficultyExplanation);
                         }
-                        } else if (field.type === 'array') {
-                            const reviews = field.value;
-                            const reviewsContainer = document.createElement('div');
-                            reviewsContainer.className = 'd-flex flex-column';
-                            reviews.forEach(review => {
-                                const reviewDiv = document.createElement('div');
-                                reviewDiv.className = 'border p-2 mb-2';
+                    } else if (field.type === 'array') {
+                        const reviews = field.value;
+                        const reviewsContainer = document.createElement('div');
+                        reviewsContainer.className = 'd-flex flex-column';
+                        reviews.forEach(review => {
+                            const reviewDiv = document.createElement('div');
+                            reviewDiv.className = 'border p-2 mb-2';
 
-                                const reviewText = document.createElement('p');
-                                reviewText.innerText = review;
-                                reviewDiv.appendChild(reviewText);
+                            const reviewText = document.createElement('p');
+                            reviewText.innerText = review;
+                            reviewDiv.appendChild(reviewText);
 
-                                reviewsContainer.appendChild(reviewDiv);
-                            });
-                            divFormGroup.appendChild(reviewsContainer);
-                        } else if (field.name === 'faculty_number') {
+                            reviewsContainer.appendChild(reviewDiv);
+                        });
+                        divFormGroup.appendChild(reviewsContainer);
+                      else if (field.name === 'faculty_number') {
                             const input = document.createElement('input');
                             input.type = 'text';
                             input.className = 'form-control';
@@ -103,17 +98,42 @@ function fetchQuestionDetails(questionId) {
                             input.value = field.value;
                             input.disabled = true;  // Set the input as disabled
                             divFormGroup.appendChild(input);
-                        } else {
-                            const input = document.createElement('input');
-                            input.type = 'text';
-                            input.className = 'form-control';
-                            input.name = field.name;
-                            input.value = field.value;
-                            if (!isEditable) {
-                                input.disabled = true;
+                    } else if (field.type === 'slider') {
+                            const difficultyLevelInput = document.createElement('input');
+                            difficultyLevelInput.type = 'range';
+                            difficultyLevelInput.className = 'form-control-range mb-2';
+                            difficultyLevelInput.name = 'difficulty_level';
+                            difficultyLevelInput.min = -5;
+                            difficultyLevelInput.max = 5;
+                            difficultyLevelInput.value = parseInt(field.value);
+
+                            const difficultyLevelValue = document.createElement('span');
+                            difficultyLevelValue.innerText = difficultyLevelInput.value;
+                            difficultyLevelValue.style.marginLeft = '10px';
+                            divFormGroup.appendChild(difficultyLevelValue);
+
+                            difficultyLevelInput.oninput = function () {
+                                difficultyLevelValue.innerText = this.value;
                             }
-                            divFormGroup.appendChild(input);
+                            divFormGroup.appendChild(difficultyLevelInput);
+
+                            if (field.name === 'difficulty_level') {
+                                const difficultyExplanation = document.createElement('medium');
+                                difficultyExplanation.className = 'form-text text-muted';
+                                difficultyExplanation.innerText = '(-5 very easy - 5 very hard)';
+                                divFormGroup.appendChild(difficultyExplanation);
+                            }
+                    } else {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'form-control';
+                        input.name = field.name;
+                        input.value = field.value;
+                        if (!isEditable) {
+                            input.disabled = true;
                         }
+                            divFormGroup.appendChild(input);
+                    }
 
                         questionForm.appendChild(divFormGroup);
                     });
@@ -134,19 +154,40 @@ function fetchAllQuestions() {
             const questionList = document.getElementById('questionList');
             questionList.innerHTML = ''; // Clear existing questions
 
+            // Create table and headers
+            const table = document.createElement('table');
+            table.className = 'table';
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            ['Test Name', 'Description', 'Rating'].forEach(headerText => {
+                const th = document.createElement('th');
+                th.innerText = headerText;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            // Create table body
+            const tbody = document.createElement('tbody');
             data.forEach(question => {
                 const rating = typeof question.rating === 'number' ? question.rating.toFixed(2) : '0.00';
 
-                const questionButton = document.createElement('button');
-                questionButton.type = 'button';
-                questionButton.className = 'list-group-item list-group-item-action';
-                questionButton.innerText = `${question.test_name}: ${question.description} - ${rating}`;
-                questionButton.addEventListener('click', function () {
+                const tr = document.createElement('tr');
+                [question.test_name, question.description, rating].forEach(text => {
+                    const td = document.createElement('td');
+                    td.innerText = text;
+                    tr.appendChild(td);
+                });
+
+                tr.addEventListener('click', function () {
                     window.location.href = `question_details.html?id=${question.id}`;
                 });
 
-                questionList.appendChild(questionButton);
+                tbody.appendChild(tr);
             });
+            table.appendChild(tbody);
+
+            questionList.appendChild(table);
         })
         .catch(error => console.error('Error fetching questions:', error));
 }

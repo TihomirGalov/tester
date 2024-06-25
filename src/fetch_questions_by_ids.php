@@ -19,7 +19,7 @@ while ($row = $result->fetch_assoc()) {
 }
 // Return the answers for each question
 foreach ($questions as $key => $question) {
-    $questionId = $question['id'];
+    $questionId = $question['question_id'];
     $query = "SELECT * FROM answers WHERE question_id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param('i', $questionId);

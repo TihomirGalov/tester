@@ -90,7 +90,7 @@ function fetchQuestionDetails(questionId) {
                             reviewsContainer.appendChild(reviewDiv);
                         });
                         divFormGroup.appendChild(reviewsContainer);
-                      else if (field.name === 'faculty_number') {
+                    } else if (field.name === 'faculty_number') {
                             const input = document.createElement('input');
                             input.type = 'text';
                             input.className = 'form-control';

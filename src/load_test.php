@@ -26,6 +26,15 @@ if (isset($_GET['test_id'])) {
     $answers = $result->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
+    // Get test name
+    $sql = "SELECT name FROM tests WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $test_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $test = $result->fetch_assoc();
+    $stmt->close();
+
     // Return {questions: [{questionId: 1, question: "What is?", answers:[{id: 1, answer: "A"}]}]}
     $response = [];
     foreach ($questions as $question) {
@@ -38,7 +47,7 @@ if (isset($_GET['test_id'])) {
         ];
     }
 
-    echo json_encode(['questions' => $response]);
+    echo json_encode(['questions' => $response, 'testName' => $test['name']]);
 } else {
     handleEmptyRequest();
 }

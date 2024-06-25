@@ -70,7 +70,7 @@ if (!empty($userTestsCreated)) {
     foreach ($userTestsCreated as $testCreated) {
         $htmlContent .= '<li class="list-group-item">';
         $htmlContent .= '<span>' . $testCreated['name'] . '</span>';
-        $htmlContent .= '<a href="test.html?test_id=' . $testCreated['id'] . '" class="badge ">Edit</a>';
+        $htmlContent .= '<a href="test.html?&edit=1&test_id=' . $testCreated['id'] . '" class="badge ">Edit</a>';
         $htmlContent .= '</li>';
     }
     $htmlContent .= '</ul>';

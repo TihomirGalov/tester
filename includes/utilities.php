@@ -2,6 +2,10 @@
 global $conn;
 include 'db.php';
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 function updateUserInfo($conn, $username, $hashed_password, $faculty_number)
 {
     $sql = "UPDATE users SET password=?, faculty_number=? WHERE nickname=?";
@@ -132,6 +136,154 @@ function assignTest($testId, $users)
     }
 
     $stmt->close();
+}
+
+function updateTestQuestions($testId, $testName, $questionsData)
+{
+    global $conn;
+    echo json_encode($questionsData);
+
+    $stmtTest = $conn->prepare("UPDATE tests SET name = ? WHERE id = ?");
+    $stmtTest->bind_param("si", $testName, $testId);
+    $stmtQuestion = $conn->prepare("UPDATE questions SET description = ? WHERE id = ?");
+    $stmtAnswer = $conn->prepare("UPDATE answers SET value = ?, is_correct = ? WHERE id = ?");
+    $stmtQDetails = $conn->prepare("UPDATE question_details SET purpose = ?, type = ?, correct_answer = ?, difficulty_level = ?, feedback_correct = ?, feedback_incorrect = ?, remarks = ? WHERE question_id = ?");
+
+    $questionIndex = 0;
+
+    foreach ($questionsData as $questionData) {
+        $questionId = $questionData['question_id'];
+        $question = $questionData['question'];
+        $answers = $questionData['answers'];
+
+        $stmtQuestion->bind_param("si", $question, $questionId);
+        $stmtQuestion->execute();
+
+        $index = 1;
+        $correctAnswer = 1;
+        foreach ($answers as $answerData) {
+            $answerId = $answerData['answer_id'];
+            $answer = $answerData['answer'];
+            $is_correct = $answerData['is_correct'];
+            if ($is_correct == 1) {
+                $correctAnswer = $index;
+            }
+            $stmtAnswer->bind_param("sii", $answer, $is_correct, $answerId);
+            $stmtAnswer->execute();
+            $index++;
+        }
+
+        $stmtQDetails->bind_param("ssissssi",
+            $questionData['question_purposes'][$questionIndex],
+            $questionData['question_types'][$questionIndex],
+            $correctAnswer,
+            $questionData['difficulty_levels'][$questionIndex],
+            $questionData['feedbacks_correct'][$questionIndex],
+            $questionData['feedbacks_incorrect'][$questionIndex],
+            $questionData['remarks'][$questionIndex],
+            $questionId
+        );
+
+        $stmtQDetails->execute();
+        $questionIndex++;
+    }
+
+    $stmtTest->execute();
+}
+
+function deleteTest($testId) {
+    try {
+        // Start the transaction
+        global $conn;
+
+        $conn->begin_transaction();
+
+        // Delete from finished_questions
+        $stmt = $conn->prepare("
+            DELETE fq
+            FROM finished_questions fq
+            JOIN finished_exams fe ON fq.exam_id = fe.id
+            WHERE fe.test_id = ?
+        ");
+        $stmt->bind_param('i', $testId);
+        $stmt->execute();
+        $stmt->close();
+
+        // Delete from reviews
+        $stmt = $conn->prepare("
+            DELETE r
+            FROM reviews r
+            JOIN questions q ON r.question_id = q.id
+            WHERE q.test_id = ?
+        ");
+        $stmt->bind_param('i', $testId);
+        $stmt->execute();
+        $stmt->close();
+
+        // Delete from question_details
+        $stmt = $conn->prepare("
+            DELETE qd
+            FROM question_details qd
+            JOIN questions q ON qd.question_id = q.id
+            WHERE q.test_id = ?
+        ");
+        $stmt->bind_param('i', $testId);
+        $stmt->execute();
+        $stmt->close();
+
+        // Delete from answers
+        $stmt = $conn->prepare("
+            DELETE a
+            FROM answers a
+            JOIN questions q ON a.question_id = q.id
+            WHERE q.test_id = ?
+        ");
+        $stmt->bind_param('i', $testId);
+        $stmt->execute();
+        $stmt->close();
+
+        // Delete from questions
+        $stmt = $conn->prepare("
+            DELETE FROM questions
+            WHERE test_id = ?
+        ");
+        $stmt->bind_param('i', $testId);
+        $stmt->execute();
+        $stmt->close();
+
+        // Delete from finished_exams
+        $stmt = $conn->prepare("
+            DELETE FROM finished_exams
+            WHERE test_id = ?
+        ");
+        $stmt->bind_param('i', $testId);
+        $stmt->execute();
+        $stmt->close();
+
+        // Delete from waiting_exams
+        $stmt = $conn->prepare("
+            DELETE FROM waiting_exams
+            WHERE test_id = ?
+        ");
+        $stmt->bind_param('i', $testId);
+        $stmt->execute();
+        $stmt->close();
+
+        // Finally, delete the test itself
+        $stmt = $conn->prepare("
+            DELETE FROM tests
+            WHERE id = ?
+        ");
+        $stmt->bind_param('i', $testId);
+        $stmt->execute();
+        $stmt->close();
+
+        // Commit the transaction
+        $conn->commit();
+    } catch (mysqli_sql_exception $exception) {
+        $conn->rollback();
+        throw $exception;
+    }
 }
 
 ?>

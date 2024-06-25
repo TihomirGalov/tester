@@ -1,7 +1,11 @@
 function loadTest() {
     const testId = new URLSearchParams(window.location.search).get('test_id');
+    const edit = new URLSearchParams(window.location.search).get('edit');
     if (!testId) {
         document.getElementById('export-buttons').innerHTML = ''; // Clear existing content
+        return;
+    } else if (edit === '1') {
+        editTest();
         return;
     }
     document.getElementById('create-test-controls').innerHTML = ''; // Clear existing content
@@ -92,13 +96,12 @@ function submitTest() {
             } else {
                 return response.json();
             }
-        // }).catch(error => {
-        //     console.error('Error:', error);
+        }).catch(error => {
+            console.error('Error:', error);
         });
     });
 }
 
-// @TODO Add a function to fetch question data from the database
 function addQuestion(question = '', answers = '', purpose = '', type = '', difficultyLevel = 0, feedbackCorrect = '', feedbackIncorrect = '', remarks = '') {
     const questionsContainer = document.getElementById('questionsContainer');
     const questionsCount = document.getElementsByClassName('form-group border p-3 mb-3').length;
@@ -288,7 +291,7 @@ function createManualTest() {
     questionsContainer.appendChild(saveButton);
 }
 
-function saveManualTest() {
+function getTestData() {
     const questionsContainer = document.getElementById('questionsContainer');
     const formData = new FormData(questionsContainer);
     let isValid = true;
@@ -389,6 +392,12 @@ function saveManualTest() {
     if (!isValid) {
         return;
     }
+
+    return data;
+}
+
+function saveManualTest() {
+    const data = getTestData();
 
     fetch('../src/save_manual_test.php', {
         method: 'POST',
@@ -605,7 +614,7 @@ function populateDropdown(dropdownId, values) {
     values.forEach(value => {
         const option = document.createElement('option');
         // Remove leading and trailing quotation marks
-        option.text =  value.replace(/^"(.*)"$/, '$1');
+        option.text = value.replace(/^"(.*)"$/, '$1');
         option.value = value;
         dropdown.add(option);
     });
@@ -757,16 +766,115 @@ function formatTime(seconds) {
 function toggleTimeDisplay() {
     const urlParams = new URLSearchParams(window.location.search);
     const testId = urlParams.get('test_id');
+    const edit = urlParams.get('edit');
     const timeDisplay = document.getElementById('timer');
-    if (testId && timeDisplay) {
+    if (edit !== '1' && testId && timeDisplay) {
         timeDisplay.style.display = 'block';
     } else {
         timeDisplay.style.display = 'none';
     }
 }
 
+function deleteTest() {
+    const testId = new URLSearchParams(window.location.search).get('test_id');
+    fetch(`../src/delete_test.php?test_id=${testId}`, {
+        method: 'DELETE'
+    }).then(response => {
+        if (response.status === 302 || response.redirected) {
+            // Manually handle the redirect
+            return response.text().then(() => {
+                window.location.href = '../public/index.html';
+            });
+        } else {
+            return response.json();
+        }
+    }).catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function updateTest(questionIds, answerIds) {
+    const data = getTestData();
+
+    if (!data) {
+        return;
+    }
+
+    data.test_id = new URLSearchParams(window.location.search).get('test_id');
+    data.question_ids = questionIds;
+    data.answer_ids = answerIds;
+
+    fetch('../src/update_test.php', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }).then(response => {
+        if (response.status === 302 || response.redirected) {
+            // Manually handle the redirect
+            return response.text().then(() => {
+                window.location.href = '../public/index.html';
+            });
+        } else {
+            return response.json();
+        }
+    }).catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function editTest() {
+    const edit = new URLSearchParams(window.location.search).get('edit');
+    const testId = new URLSearchParams(window.location.search).get('test_id');
+    if (edit !== '1' || !testId) {
+        return;
+    }
+
+    document.getElementById('export-buttons').innerHTML = ''; // Clear existing content
+    document.getElementById('createTest').style.display = 'none'; // Hide the "Create Test" button
+    document.getElementById('csvFileInput').style.display = 'none'; // Hide the CSV file input
+    document.getElementById('testNameContainer').classList.remove('d-none');
+
+    var questionIds = [];
+    var answerIds = [];
+
+    fetch(`../src/load_test.php?test_id=${testId}`).then(response => response.json()).then(data => {
+        //Get question ids and execute fetchQuestionsByIds
+        questionIds = data.questions.map(question => question.questionId);
+        answerIds = data.questions.map(question => question.answers.map(answer => answer.id)).flat();
+        document.getElementById('testName').value = data.testName;
+
+        fetchQuestionsByIds(questionIds);
+    }).then(() => {
+        // Add "Save Test" button and Delete Test button
+        const saveButton = document.createElement('button');
+        saveButton.type = 'button';
+        saveButton.className = 'btn btn-primary mb-4';
+        saveButton.innerText = 'Save Test';
+        saveButton.onclick = () => {
+            updateTest(questionIds, answerIds);
+        };
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'btn btn-danger mb-4';
+        deleteButton.innerText = 'Delete Test';
+        deleteButton.onclick = deleteTest;
+
+        // Create Buttons flex container
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.className = 'd-flex justify-content-between';
+        buttonsContainer.appendChild(saveButton);
+        buttonsContainer.appendChild(deleteButton);
+
+        // Append buttons to the questions container
+        document.getElementById('questionsContainer').appendChild(buttonsContainer);
+    });
+}
+
 // Add event listener for form submission to include time taken
-document.getElementById('questionsContainer').addEventListener('submit', function(event) {
+document.getElementById('questionsContainer').addEventListener('submit', function (event) {
     const timeTaken = captureTimeTaken();
     const timeTakenInput = document.createElement('input');
     timeTakenInput.type = 'hidden';

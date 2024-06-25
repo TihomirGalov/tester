@@ -10,7 +10,7 @@ include '../includes/db.php';
 include '../includes/utilities.php';
 
 // Try to get test_id param from the request
-$finished_exam_id = isset($_GET['test_id']) ? $_GET['test_id'] : $_SESSION['finished_exam_id'];
+$finished_exam_id = (isset($_GET['test_id']) && filter_var($_GET['test_id'], FILTER_VALIDATE_INT)) ? $_GET['test_id'] : $_SESSION['finished_exam_id'];
 $user_id = $_SESSION['user_id'];
 
 function duplicateQuestionDetails($finished_exam_id) {

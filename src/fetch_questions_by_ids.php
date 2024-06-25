@@ -7,7 +7,7 @@ session_start();
 $ids = $_GET['ids'];
 $ids = explode(',', $ids);
 $placeholders = implode(',', array_fill(0, count($ids), '?'));
-$query = "SELECT * FROM questions WHERE id IN ($placeholders)";
+$query = "SELECT * FROM questions JOIN question_details qd ON qd.question_id = questions.id WHERE questions.id IN ($placeholders)";
 $stmt = $conn->prepare($query);
 $stmt->bind_param(str_repeat('i', count($ids)), ...$ids);
 $stmt->execute();

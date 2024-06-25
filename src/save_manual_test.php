@@ -26,7 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $questionAnswers[] = ['answer' => $answers[$i][$j], 'is_correct' => $is_correct];
             }
 
-            $questionsData[] = ['question' => $question, 'answers' => $questionAnswers];
+            $questionsData[] = [
+                'question' => $question,
+                'answers' => $questionAnswers,
+                'question_purposes' => $data['question_purposes'],
+                'question_types' => $data['question_types'],
+                'difficulty_levels' => $data['difficulty_levels'],
+                'feedbacks_correct' => $data['feedbacks_correct'],
+                'feedbacks_incorrect' => $data['feedbacks_incorrect'],
+                'remarks' => $data['remarks']
+            ];
         }
 
         $createdBy = $_SESSION['user_id'];

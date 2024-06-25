@@ -6,6 +6,7 @@ include '../includes/utilities.php';
 
 $username = $_POST['username'];
 $faculty_number = $_POST['faculty_number'];
+$original_faculty_number = $_POST['original_faculty_number'];
 
 // Fetch the current hashed password from the database
 $sql = "SELECT password FROM users WHERE nickname=?";
@@ -36,7 +37,7 @@ if ($result->num_rows > 0) {
     }
 
     // Validate and update faculty_number
-    if (!empty($faculty_number)) {
+    if (!empty($faculty_number) && $faculty_number !== $original_faculty_number) {
         // Check if faculty_number already exists
         $sql = "SELECT * FROM users WHERE faculty_number=?";
         $stmt = $conn->prepare($sql);

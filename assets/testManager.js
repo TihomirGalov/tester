@@ -96,8 +96,8 @@ function submitTest() {
             } else {
                 return response.json();
             }
-            // }).catch(error => {
-            //     console.error('Error:', error);
+        }).catch(error => {
+            console.error('Error:', error);
         });
     });
 }
@@ -329,9 +329,7 @@ function getTestData() {
         difficulty_levels: [],
         feedbacks_correct: [],
         feedbacks_incorrect: [],
-        remarks: [],
-        question_ids: [],
-        answer_ids: []
+        remarks: []
     };
 
     formData.forEach((value, key) => {
@@ -805,7 +803,6 @@ function updateTest(questionIds, answerIds) {
     data.test_id = new URLSearchParams(window.location.search).get('test_id');
     data.question_ids = questionIds;
     data.answer_ids = answerIds;
-    console.log(data);
 
     fetch('../src/update_test.php', {
         method: 'PUT',
@@ -855,7 +852,9 @@ function editTest() {
         saveButton.type = 'button';
         saveButton.className = 'btn btn-primary mb-4';
         saveButton.innerText = 'Save Test';
-        saveButton.onclick = () => { updateTest(questionIds, answerIds); };
+        saveButton.onclick = () => {
+            updateTest(questionIds, answerIds);
+        };
 
         const deleteButton = document.createElement('button');
         deleteButton.type = 'button';

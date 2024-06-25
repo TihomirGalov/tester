@@ -2,10 +2,6 @@
 global $conn;
 include 'db.php';
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 function updateUserInfo($conn, $username, $hashed_password, $faculty_number)
 {
     $sql = "UPDATE users SET password=?, faculty_number=? WHERE nickname=?";

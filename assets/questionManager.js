@@ -27,6 +27,7 @@ function fetchQuestionDetails(questionId) {
 
             function populateForm(fields, creatorId, currentUserId) {
                 let isEditable = false;
+                console.log(fields);
                 fields.forEach(field => {
                     const divFormGroup = document.createElement('div');
                     divFormGroup.className = 'form-group mb-3';
@@ -89,6 +90,14 @@ function fetchQuestionDetails(questionId) {
                             reviewsContainer.appendChild(reviewDiv);
                         });
                         divFormGroup.appendChild(reviewsContainer);
+                      else if (field.name === 'faculty_number') {
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.className = 'form-control';
+                            input.name = field.name;
+                            input.value = field.value;
+                            input.disabled = true;  // Set the input as disabled
+                            divFormGroup.appendChild(input);
                     } else if (field.type === 'slider') {
                             const difficultyLevelInput = document.createElement('input');
                             difficultyLevelInput.type = 'range';
@@ -123,11 +132,11 @@ function fetchQuestionDetails(questionId) {
                         if (!isEditable) {
                             input.disabled = true;
                         }
-                        divFormGroup.appendChild(input);
+                            divFormGroup.appendChild(input);
                     }
 
-                    questionForm.appendChild(divFormGroup);
-                });
+                        questionForm.appendChild(divFormGroup);
+                    });
 
                 if (!isEditable) {
                     document.querySelector('button[type="button"]').disabled = true;

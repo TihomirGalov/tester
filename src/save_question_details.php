@@ -9,10 +9,6 @@ if (!isset($_SESSION['loggedIn']) || !$_SESSION['loggedIn'] || !$_SESSION['user_
 
 include '../includes/db.php';
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 // Collect data from POST request
 $question_id = $_POST['id'];
 $purpose = $_POST['purpose'];
@@ -26,9 +22,6 @@ $description = $_POST['description'];
 $answers = array_filter($_POST, function($key) {
     return strpos($key, 'answer_') === 0;
 }, ARRAY_FILTER_USE_KEY);
-
-// Log POST data for debugging
-error_log("Collected POST data: " . print_r($_POST, true));
 
 // Update question_details table
 $sql = "
@@ -44,7 +37,6 @@ $sql = "
 ";
 $stmt = $conn->prepare($sql);
 if ($stmt === false) {
-    error_log("Error preparing statement for question_details: " . $conn->error);
     echo json_encode(["status" => "error", "message" => "Database error"]);
     exit();
 }
@@ -63,7 +55,6 @@ $stmt->bind_param(
 );
 
 if (!$stmt->execute()) {
-    error_log("Error executing statement for question_details: " . $stmt->error);
     echo json_encode(["status" => "error", "message" => "Database error"]);
     exit();
 }
@@ -74,7 +65,6 @@ $stmt->close();
 $sql = "UPDATE questions SET description = ? WHERE id = ?";
 $stmt = $conn->prepare($sql);
 if ($stmt === false) {
-    error_log("Error preparing statement for questions: " . $conn->error);
     echo json_encode(["status" => "error", "message" => "Database error"]);
     exit();
 }
@@ -82,7 +72,6 @@ if ($stmt === false) {
 $stmt->bind_param("si", $description, $question_id);
 
 if (!$stmt->execute()) {
-    error_log("Error executing statement for questions: " . $stmt->error);
     echo json_encode(["status" => "error", "message" => "Database error"]);
     exit();
 }
@@ -102,7 +91,6 @@ $stmt_min_id->close();
 $current_answer_id = $min_id;
 
 foreach ($answers as $key => $value) {
-    error_log("Correct answer is: $correct_answer for question with id $question_id");
     // Prepare the update query for the current answer
     $sql_update = "UPDATE answers SET value = ?, is_correct = ? WHERE id = ? AND question_id = ?";
     $stmt_update = $conn->prepare($sql_update);
@@ -116,7 +104,6 @@ foreach ($answers as $key => $value) {
 
     // Check for errors and handle them if any
     if ($stmt_update->error) {
-        error_log("Error executing statement for updating answer with ID $current_answer_id: " . $stmt_update->error);
         echo json_encode(["status" => "error", "message" => "Database error"]);
         exit();
     }
@@ -130,7 +117,6 @@ foreach ($answers as $key => $value) {
 
 $conn->close();
 
-error_log("Question details updated successfully for question_id: " . $question_id);
 echo json_encode(["status" => "success"]);
 ?>
 ?>

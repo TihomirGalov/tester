@@ -10,7 +10,6 @@ session_start();
 if (isset($_GET['test_id'])) {
     $test_id = $_GET['test_id'];
 
-    //$sql = "SELECT * FROM questions WHERE test_id = ?";
     $sql = "SELECT * FROM questions WHERE test_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $test_id);

@@ -14,7 +14,7 @@
         }
     ?>
 </head>
-<body onload="startEventListener('settingsForm')">
+<body onload="startLoginListener('settingsForm')">
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
         <a class="navbar-brand" href="index.html">Test Generator</a>
@@ -58,6 +58,9 @@
         if (isset($_GET['error']) && $_GET['error'] === 'incorrect_password') {
             echo '<div class="alert alert-danger" role="alert">Incorrect current password. Please try again.</div>';
 }
+if (isset($_GET['error']) && $_GET['error'] === 'faculty_number_exists') {
+echo '<div class="alert alert-danger" role="alert">Faculty number already exists. Please choose another.</div>';
+}
 ?>
 <form id="settingsForm" action="../src/settings.php" method="post">
     <div class="mb-3">
@@ -71,6 +74,7 @@
     <div class="mb-3">
         <label for="faculty_number" class="form-label">Faculty Number:</label>
         <input type="text" class="form-control" id="faculty_number" name="faculty_number" required>
+        <div id="facultyNumberError" class="invalid-feedback"></div>
     </div>
     <div class="mb-3">
         <label for="current_password" class="form-label">Current Password:</label>
@@ -92,7 +96,7 @@
             const newPassword = document.getElementById('new_password').value.trim();
             if (newPassword !== '' && currentPassword === '') {
                 event.preventDefault(); // Prevent form submission
-                alert('Please enter your current password to set a new password.'); // Alert user
+                displayError('registrationError', 'Please enter your current password to set a new password.');
             }
         });
 
@@ -112,12 +116,12 @@
                     if (data.email) {
                         document.getElementById('email').value = data.email;
                     } else {
-                        alert(data.error || 'Email not found for the provided username');
+                        displayError('registrationError', data.error || 'Email not found for the provided username');
                     }
                     if (data.faculty_number) {
                         document.getElementById('faculty_number').value = data.faculty_number;
                     } else {
-                        alert(data.error || 'Faculty number not found for the provided username');
+                        displayError('facultyNumberError', data.error || 'Faculty number not found for the provided username');
                     }
                 })
                 .catch(error => console.error('Error fetching user data:', error));

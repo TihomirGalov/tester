@@ -6,10 +6,6 @@ include '../includes/utilities.php';
 // Start the session
 session_start();
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['csvFile']) && $_FILES['csvFile']['error'] === UPLOAD_ERR_OK) {
         $csvFile = $_FILES['csvFile']['tmp_name'];

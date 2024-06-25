@@ -9,10 +9,6 @@ if (!isset($_SESSION['loggedIn']) || !$_SESSION['loggedIn'] || !$_SESSION['user_
 include '../includes/db.php';
 include '../includes/utilities.php';
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 // Try to get test_id param from the request
 $finished_exam_id = isset($_GET['test_id']) ? $_GET['test_id'] : $_SESSION['finished_exam_id'];
 $user_id = $_SESSION['user_id'];

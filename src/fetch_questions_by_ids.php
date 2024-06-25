@@ -3,7 +3,7 @@ global $conn;
 include '../includes/db.php';
 
 session_start();
-// get all questions by the ids passed in the request
+// Get all questions by the ids passed in the request
 $ids = $_GET['ids'];
 $ids = explode(',', $ids);
 $placeholders = implode(',', array_fill(0, count($ids), '?'));
@@ -17,7 +17,7 @@ $questions = array();
 while ($row = $result->fetch_assoc()) {
     $questions[] = $row;
 }
-//return the answers for each question
+// Return the answers for each question
 foreach ($questions as $key => $question) {
     $questionId = $question['id'];
     $query = "SELECT * FROM answers WHERE question_id = ?";

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Page</title>
+    <link rel="stylesheet" href="../styles/style.css">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <?php
         session_start();
@@ -52,17 +53,19 @@
     </div>
 </nav>
 <div class="container mt-5">
-    <h1 class="mb-4">Dynamic Multiple-Choice Test Page</h1>
+    <h1 class="mb-4">Test Page</h1>
     <div id="create-test-controls">
-        <button class="btn btn-primary mb-4" onclick="showCreateTestOptions()" id="createTest">Create Test Manually</button>
+        <div class="buttons-container">
+            <button class="btn btn-primary mb-4" onclick="showCreateTestOptions()" id="createTest">Create Test Manually</button>
+            <input type="file" id="csvFileInput" class="btn btn-secondary mb-3" accept=".csv">
+            <button type="button" class="btn btn-primary" id="importCsvBtn" style="display: none;" data-toggle="modal" data-target="#importModal">
+                Import CSV and Load Test
+            </button>
+        </div>
         <div class="form-group d-none" id="testNameContainer">
             <label for="testName">Test Name:</label>
             <input type="text" class="form-control mb-4" id="testName" name="test_name">
         </div>
-        <input type="file" id="csvFileInput" class="btn btn-secondary mb-3" accept=".csv">
-        <button type="button" class="btn btn-primary" id="importCsvBtn" style="display: none;" data-toggle="modal" data-target="#importModal">
-            Import CSV and Load Test
-        </button>
 
         <!-- Modal -->
         <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
@@ -104,9 +107,9 @@
             </div>
         </div>
         <!-- Add multiple choice drop down to assign the test to users -->
-        <div class="form-group" id="assignUsersContainer">
+        <div class="form-group select-container" id="assignUsersContainer">
             <label for="assignUsers">Assign Test to Users:</label>
-            <select class="form-control" id="assignUsers" name="assign_users" multiple>
+            <select id="assignUsers" name="assign_users" multiple>
                 <option value="">Select Users</option>
             </select>
             <div class="form-check mt-2">

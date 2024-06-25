@@ -39,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $createdBy = $_SESSION['user_id'];
+
         $testId = createTest($testName, $questionsData, $createdBy);
         assignTest($testId, $users);
 

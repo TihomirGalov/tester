@@ -29,21 +29,18 @@ function loadTest() {
                     const optionDiv = document.createElement('div');
                     optionDiv.className = 'form-check d-flex align-items-center';
 
-                    const optionLabelLeft = document.createElement('label');
-                    optionLabelLeft.className = 'form-check-label mr-2';
-                    optionLabelLeft.innerText = `Answer ${index + 1}: `;
-                    optionDiv.appendChild(optionLabelLeft);
-
                     const optionInput = document.createElement('input');
                     optionInput.type = 'radio';
                     optionInput.className = 'form-check-input mr-2';
                     optionInput.name = `${data.questions[i].questionId}`;
+                    optionInput.id = `${option.id}_${i}`;
                     optionInput.value = option.id;
                     optionDiv.appendChild(optionInput);
 
                     const optionLabel = document.createElement('label');
                     optionLabel.className = 'form-check-label flex-grow-1';
-                    optionLabel.innerText = option.data;
+                    optionLabel.innerText = `Answer ${index + 1}: ${option.data}`;
+                    optionLabel.setAttribute('for', `${option.id}_${i}`); // Set the for attribute to match the input id
                     optionDiv.appendChild(optionLabel);
 
                     questionDiv.appendChild(optionDiv);
@@ -285,10 +282,17 @@ function createManualTest() {
     saveButton.innerText = 'Save Test';
     saveButton.onclick = saveManualTest;
 
+    // Create buttons flex container
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.className = 'd-flex justify-content-between';
+    // Set width to the container
+    buttonsContainer.style.width = '40%';
+    buttonsContainer.appendChild(saveButton);
+    buttonsContainer.appendChild(addButton);
+    buttonsContainer.appendChild(fetchButton);
+
     // Append buttons to the questions container
-    questionsContainer.appendChild(addButton);
-    questionsContainer.appendChild(fetchButton);
-    questionsContainer.appendChild(saveButton);
+    questionsContainer.appendChild(buttonsContainer);
 }
 
 function getTestData() {
@@ -659,7 +663,6 @@ function updateTotalCount(count) {
         totalCount = 0;
     }
 }
-
 
 function handleImport() {
     const range = document.getElementById('questionRange').value;

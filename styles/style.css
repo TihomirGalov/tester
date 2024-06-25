@@ -26,3 +26,64 @@
 .list-group-item {
     display: flex !important;
 }
+
+#export-buttons {
+    margin-bottom: 10px;
+}
+
+.buttons-container {
+    display: flex;
+    justify-content: space-around;
+
+    button, input {
+        height: 40px;
+    }
+}
+
+/* Container style */
+.select-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+/* Style for the select element */
+.select-container select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    appearance: none; /* Remove default arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+
+/* Style for dropdown options */
+.select-container select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.25);
+}
+
+/* Custom styles for options */
+.select-container select option {
+    padding: 10px;
+}
+
+/* Style for multiple select dropdown */
+.select-container select[multiple] {
+    height: auto;
+    padding-right: 30px;
+    background-image: none;
+}
+
+/* Add custom styles to dropdown option on hover */
+.select-container select option:hover {
+    background-color: #f1f1f1;
+}

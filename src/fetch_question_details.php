@@ -22,7 +22,7 @@ $created_by = null;
 while ($row = $result->fetch_assoc()) {
     $fields[] = array(
         'name' => 'description',
-        'label' => 'Въпрос',
+        'label' => 'Question',
         'type' => 'text',
         'value' => $row['description']
     );
@@ -30,53 +30,53 @@ while ($row = $result->fetch_assoc()) {
     for ($i = 0; $i < count($answers); $i++) {
         $fields[] = array(
             'name' => "answer_" . ($i + 1),
-            'label' => "Отговор " . ($i + 1),
+            'label' => "Answer " . ($i + 1),
             'type' => 'text',
             'value' => $answers[$i]
         );
     }
     $fields[] = array(
         'name' => 'purpose',
-        'label' => 'Цел',
+        'label' => 'Question purpose',
         'type' => 'text',
         'value' => $row['purpose']
     );
     $fields[] = array(
         'name' => 'type',
-        'label' => 'Тип',
+        'label' => 'Question type',
         'type' => 'radio',
         'value' => $row['type'],
         'options' => 3
     );
     $fields[] = array(
         'name' => 'correct_answer',
-        'label' => 'Верен отговор',
+        'label' => 'Correct answer',
         'type' => 'radio',
         'value' => $row['correct_answer'],
         'options' => 4
     );
     $fields[] = array(
         'name' => 'difficulty_level',
-        'label' => 'Трудност на въпроса',
-        'type' => 'radio',
+        'label' => 'Question difficulty',
+        'type' => 'slider',
         'value' => $row['difficulty_level'],
         'options' => 5
     );
     $fields[] = array(
         'name' => 'feedback_correct',
-        'label' => 'Обратна връзка при правилен отговор',
+        'label' => 'Feedback for correct answer',
         'type' => 'text',
         'value' => $row['feedback_correct']
     );
     $fields[] = array(
         'name' => 'feedback_incorrect',
-        'label' => 'Обратна връзка при грешен отговор',
+        'label' => 'Feedback for incorrect answer',
         'type' => 'text',
         'value' => $row['feedback_incorrect']
     );
     $fields[] = array(
         'name' => 'remarks',
-        'label' => 'Забележка',
+        'label' => 'Remarks',
         'type' => 'text',
         'value' => $row['remarks']
     );
@@ -96,21 +96,21 @@ $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) {
     $fields[] = array(
         'name' => 'rating',
-        'label' => 'Средна оценка',
+        'label' => 'Average rating',
         'type' => 'text',
         'disabled' => 'false',
         'value' => $row['rating']
     );
     $fields[] = array(
         'name' => 'difficulty',
-        'label' => 'Средна трудност',
+        'label' => 'Average difficulty',
         'type' => 'text',
         'disabled' => 'false',
         'value' => $row['difficulty']
     );
     $fields[] = array(
         'name' => 'time_taken',
-        'label' => 'Средно време за решаване',
+        'label' => 'Average time taken',
         'type' => 'text',
         'disabled' => 'false',
         'value' => $row['time_taken']
@@ -130,7 +130,7 @@ while ($row = $result->fetch_assoc()) {
 }
 $fields[] = array(
     'name' => 'reviews',
-    'label' => 'Отзиви',
+    'label' => 'Reviews',
     'type' => 'array',
     'value' => $reviews
 );

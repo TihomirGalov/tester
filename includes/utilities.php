@@ -34,6 +34,13 @@ function handleEmptyRequest()
     handleRegistrationError("No data received");
 }
 
+function handlePermissionError($errorMessage)
+{
+    http_response_code(403);
+    echo $errorMessage;
+    exit;
+}
+
 function getUserById($userId)
 {
     global $conn;
@@ -48,9 +55,19 @@ function getUserById($userId)
     return $user;
 }
 
+function checkUserPermission($userId) {
+    //can_create_test
+    $user = getUserById($userId);
+
+    if ($user['can_create_test'] == 0) {
+        handlePermissionError("You do not have permission to create a test.");
+    }
+}
+
 function createTest($test_name, $questionsData, $createdBy)
 {
     global $conn;
+    checkUserPermission($createdBy);
 
     // Create a new test
     $stmt = $conn->prepare("INSERT INTO tests (name, created_by) VALUES (?, ?)");
@@ -134,8 +151,9 @@ function assignTest($testId, $users)
     $stmt->close();
 }
 
-function updateTestQuestions($testId, $testName, $questionsData)
+function updateTestQuestions($testId, $testName, $questionsData, $userId)
 {
+    checkUserPermission($userId);
     global $conn;
     echo json_encode($questionsData);
 
@@ -187,7 +205,8 @@ function updateTestQuestions($testId, $testName, $questionsData)
     $stmtTest->execute();
 }
 
-function deleteTest($testId) {
+function deleteTest($testId, $userId) {
+    checkUserPermission($userId);
     try {
         // Start the transaction
         global $conn;

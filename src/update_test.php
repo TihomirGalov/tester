@@ -41,7 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
             ];
         }
 
-        updateTestQuestions($testId, $testName, $questionsData);
+        $userId = $_SESSION['user_id'];
+        updateTestQuestions($testId, $testName, $questionsData, $userId);
 
         header("Location: ../public/index.html");
     } else {

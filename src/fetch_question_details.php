@@ -21,6 +21,13 @@ $fields = array();
 $created_by = null;
 while ($row = $result->fetch_assoc()) {
     $fields[] = array(
+        'name' => 'faculty_number',
+        'label' => 'Факултетен номер',
+        'type' => 'text',
+        'value' => $row['faculty_number']
+    );
+
+    $fields[] = array(
         'name' => 'description',
         'label' => 'Въпрос',
         'type' => 'text',

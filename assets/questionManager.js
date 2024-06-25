@@ -16,11 +16,11 @@ function fetchQuestionDetails(questionId) {
                 url: '../src/get_user_id.php',
                 method: 'GET',
                 dataType: 'json',
-                success: function (response) {
+                success: function(response) {
                     currentUserId = response.user_id;
                     populateForm(fields, creatorId, currentUserId);
                 },
-                error: function (xhr, status, error) {
+                error: function(xhr, status, error) {
                     console.error('Error fetching user ID:', error);
                 }
             });

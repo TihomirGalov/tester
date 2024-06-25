@@ -74,6 +74,7 @@ echo '<div class="alert alert-danger" role="alert">Faculty number already exists
     <div class="mb-3">
         <label for="faculty_number" class="form-label">Faculty Number:</label>
         <input type="text" class="form-control" id="faculty_number" name="faculty_number" required>
+        <input type="hidden" id="original_faculty_number" name="original_faculty_number" >
         <div id="facultyNumberError" class="invalid-feedback"></div>
     </div>
     <div class="mb-3">
@@ -120,6 +121,7 @@ echo '<div class="alert alert-danger" role="alert">Faculty number already exists
                     }
                     if (data.faculty_number) {
                         document.getElementById('faculty_number').value = data.faculty_number;
+                        document.getElementById('original_faculty_number').value = data.faculty_number;
                     } else {
                         displayError('facultyNumberError', data.error || 'Faculty number not found for the provided username');
                     }

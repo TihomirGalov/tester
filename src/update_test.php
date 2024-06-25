@@ -1,4 +1,6 @@
 <?php
+ob_start();
+
 include '../includes/db.php';
 include '../includes/utilities.php';
 
@@ -45,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         updateTestQuestions($testId, $testName, $questionsData, $userId);
 
         header("Location: ../public/index.html");
+        ob_end_flush();
     } else {
         echo json_encode(['error' => 'Invalid input data.']);
     }

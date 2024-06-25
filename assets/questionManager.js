@@ -16,17 +16,18 @@ function fetchQuestionDetails(questionId) {
                 url: '../src/get_user_id.php',
                 method: 'GET',
                 dataType: 'json',
-                success: function(response) {
+                success: function (response) {
                     currentUserId = response.user_id;
                     populateForm(fields, creatorId, currentUserId);
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error fetching user ID:', error);
                 }
             });
 
             function populateForm(fields, creatorId, currentUserId) {
                 let isEditable = false;
+                console.log(fields);
                 fields.forEach(field => {
                     const divFormGroup = document.createElement('div');
                     divFormGroup.className = 'form-group mb-3';
@@ -79,35 +80,43 @@ function fetchQuestionDetails(questionId) {
                             difficultyExplanation.innerText = '(1 - За предварителни знания; 2 - по време на презентацията; 3 - след презентацията )';
                             divFormGroup.appendChild(difficultyExplanation);
                         }
-                    } else if (field.type === 'array') {
-                        const reviews = field.value;
-                        const reviewsContainer = document.createElement('div');
-                        reviewsContainer.className = 'd-flex flex-column';
-                        reviews.forEach(review => {
-                            const reviewDiv = document.createElement('div');
-                            reviewDiv.className = 'border p-2 mb-2';
+                        } else if (field.type === 'array') {
+                            const reviews = field.value;
+                            const reviewsContainer = document.createElement('div');
+                            reviewsContainer.className = 'd-flex flex-column';
+                            reviews.forEach(review => {
+                                const reviewDiv = document.createElement('div');
+                                reviewDiv.className = 'border p-2 mb-2';
 
-                            const reviewText = document.createElement('p');
-                            reviewText.innerText = review;
-                            reviewDiv.appendChild(reviewText);
+                                const reviewText = document.createElement('p');
+                                reviewText.innerText = review;
+                                reviewDiv.appendChild(reviewText);
 
-                            reviewsContainer.appendChild(reviewDiv);
-                        });
-                        divFormGroup.appendChild(reviewsContainer);
-                    } else {
-                        const input = document.createElement('input');
-                        input.type = 'text';
-                        input.className = 'form-control';
-                        input.name = field.name;
-                        input.value = field.value;
-                        if (!isEditable) {
-                            input.disabled = true;
+                                reviewsContainer.appendChild(reviewDiv);
+                            });
+                            divFormGroup.appendChild(reviewsContainer);
+                        } else if (field.name === 'faculty_number') {
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.className = 'form-control';
+                            input.name = field.name;
+                            input.value = field.value;
+                            input.disabled = true;  // Set the input as disabled
+                            divFormGroup.appendChild(input);
+                        } else {
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.className = 'form-control';
+                            input.name = field.name;
+                            input.value = field.value;
+                            if (!isEditable) {
+                                input.disabled = true;
+                            }
+                            divFormGroup.appendChild(input);
                         }
-                        divFormGroup.appendChild(input);
-                    }
 
-                    questionForm.appendChild(divFormGroup);
-                });
+                        questionForm.appendChild(divFormGroup);
+                    });
 
                 if (!isEditable) {
                     document.querySelector('button[type="button"]').disabled = true;
@@ -116,6 +125,7 @@ function fetchQuestionDetails(questionId) {
         })
         .catch(error => console.error('Error fetching question details:', error));
 }
+
 // Fetch all questions from the database for questions page
 function fetchAllQuestions() {
     fetch('../src/fetch_questions.php')

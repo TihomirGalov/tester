@@ -437,6 +437,7 @@ function showCreateTestOptions() {
 
 
     document.getElementById('csvFileInput').classList.add('d-none');
+    document.getElementById('importCsvBtn').style.display = 'none';
     document.getElementById('createTest').style.display = 'none'; // Hide the "Create Test" button
     document.getElementById('testNameContainer').classList.remove('d-none');
 
@@ -641,13 +642,34 @@ function updateTotalCount(count) {
 }
 
 function handleImport() {
+    const creator = document.getElementById('creator').value.replace(/^"(.*)"$/, '$1');
+    const testPurpose = document.getElementById('testPurpose').value.replace(/^"(.*)"$/, '$1');
     const range = document.getElementById('questionRange').value;
     const [rangeStart, rangeEnd] = range.split('-').map(Number);
     const errorContainer = document.getElementById('errorContainer');
 
-    console.error(rangeStart);
-    console.error(rangeEnd);
-    console.error(lines.length);
+    // Check if creator is selected
+    if (creator === '') {
+        errorContainer.style.display = 'block';
+        errorContainer.textContent = 'Please select a creator.';
+        return;
+    } else {
+        // Hide error message if the creator is valid
+        errorContainer.style.display = 'none';
+        errorContainer.textContent = '';
+    }
+
+    // Check if test purpose is selected
+    if (testPurpose === '') {
+        errorContainer.style.display = 'block';
+        errorContainer.textContent = 'Please select a test purpose.';
+        return;
+    } else {
+        // Hide error message if the test purpose is valid
+        errorContainer.style.display = 'none';
+        errorContainer.textContent = '';
+    }
+
     // Check if the range is valid
     if (isNaN(rangeStart) || isNaN(rangeEnd) || rangeStart < 1 || rangeEnd < rangeStart || rangeEnd > totalCount) {
         // Show error message
@@ -661,8 +683,6 @@ function handleImport() {
     }
 
     const questionRange = document.getElementById('questionRange').value;
-    const creator = document.getElementById('creator').value.replace(/^"(.*)"$/, '$1');
-    const testPurpose = document.getElementById('testPurpose').value.replace(/^"(.*)"$/, '$1');
 
     const csvFileInput = document.getElementById('csvFileInput');
     const file = csvFileInput.files[0];
@@ -813,6 +833,7 @@ function editTest() {
     document.getElementById('export-buttons').innerHTML = ''; // Clear existing content
     document.getElementById('createTest').style.display = 'none'; // Hide the "Create Test" button
     document.getElementById('csvFileInput').style.display = 'none'; // Hide the CSV file input
+    document.getElementById('importCsvBtn').style.display = 'none'; // Hide the CSV file input
     document.getElementById('assignUsersContainer').style.display = 'none'; // Hide the assign users container
     document.getElementById('testNameContainer').classList.remove('d-none');
 

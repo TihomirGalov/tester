@@ -346,7 +346,7 @@ COMMIT;
 INSERT INTO `users` (created, email, password, nickname, faculty_number, id, can_create_test, avatar)
 VALUES
     (current_timestamp(), 'admin@example.com', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'admin', '9999', 1, 1, NULL),
-    (current_timestamp(), 'user@example.com', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'user', '9998', 2, 1, NULL);
+    (current_timestamp(), 'user@example.com', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 'user', '9998', 2, 0, NULL);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

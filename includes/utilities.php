@@ -37,7 +37,7 @@ function handleEmptyRequest()
 function handlePermissionError($errorMessage)
 {
     http_response_code(403);
-    echo $errorMessage;
+    echo json_encode(['message' => $errorMessage]);
     exit;
 }
 

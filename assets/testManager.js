@@ -421,45 +421,14 @@ function saveManualTest() {
             return response.text().then(() => {
                 window.location.href = '../public/index.html';
             });
-        } else {
+        } else if (response.status === 403) {
+            alert("You do not have permission to create a test!");
+        }else {
             return response.json();
         }
     }).catch(error => {
         console.error('Error:', error);
     });
-}
-
-function createAndLoadTest() {
-    const csvFileInput = document.getElementById('csvFileInput');
-    const file = csvFileInput.files[0];
-
-    if (file) {
-        const formData = new FormData();
-        const options = document.getElementById('assignUsers').selectedOptions;
-        const users = Array.from(options).map(({value}) => value);
-        formData.append('csvFile', file);
-        formData.append('test_name', file.name.replace(/\.[^/.]+$/, "")); // Set test name as file name without extension
-        formData.append('users', JSON.stringify(users));
-        fetch('../src/fetch_test.php', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.test_id) {
-                    window.location.href = `../public/test.html?test_id=${data.test_id}`;
-                } else {
-                    console.error('Error creating test:', data.error);
-                    alert('Error creating test: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error creating test:', error);
-                alert('Error creating test: ' + error.message);
-            });
-    } else {
-        alert('Please select a CSV file to upload.');
-    }
 }
 
 
@@ -470,8 +439,6 @@ function showCreateTestOptions() {
     document.getElementById('csvFileInput').classList.add('d-none');
     document.getElementById('createTest').style.display = 'none'; // Hide the "Create Test" button
     document.getElementById('testNameContainer').classList.remove('d-none');
-    //document.getElementById('assignUsersContainer').classList.remove('d-none');
-    document.querySelector('button[onclick="createAndLoadTest()"]').classList.add('d-none');
 
     // Check if buttons already exist
     if (!container.querySelector('.btn-secondary') || !container.querySelector('.btn-primary')) {

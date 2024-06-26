@@ -27,7 +27,9 @@ $stmt_created->close();
 $sql_assigned = 'SELECT tests.name, tests.id
                 FROM waiting_exams
                 INNER JOIN tests ON waiting_exams.test_id = tests.id
-                WHERE waiting_exams.user_id = ?';
+                LEFT JOIN finished_exams ON waiting_exams.test_id = finished_exams.test_id AND waiting_exams.user_id = finished_exams.user_id
+                WHERE waiting_exams.user_id = ?
+                AND finished_exams.test_id IS NULL';
 
 $stmt_assigned = $conn->prepare($sql_assigned);
 $stmt_assigned->bind_param('i', $user_id);

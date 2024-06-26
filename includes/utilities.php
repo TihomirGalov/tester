@@ -109,7 +109,6 @@ function createTest($test_name, $questionsData, $createdBy)
         // Insert the question details
         $questionNumber = $questionIndex + 1;
         $timestamp = date('Y-m-d H:i:s');
-        echo json_encode($questionData);
 
         $stmtQDetails->bind_param("issssssssss",
             $questionId,
@@ -155,7 +154,6 @@ function updateTestQuestions($testId, $testName, $questionsData, $userId)
 {
     checkUserPermission($userId);
     global $conn;
-    echo json_encode($questionsData);
 
     $stmtTest = $conn->prepare("UPDATE tests SET name = ? WHERE id = ?");
     $stmtTest->bind_param("si", $testName, $testId);

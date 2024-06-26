@@ -87,3 +87,7 @@
 .select-container select option:hover {
     background-color: #f1f1f1;
 }
+
+#submitBtn {
+    margin-bottom: 50px;
+}

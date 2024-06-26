@@ -99,7 +99,7 @@ function submitTest() {
     });
 }
 
-function addQuestion(question = '', answers = '', purpose = '', type = '', difficultyLevel = 0, feedbackCorrect = '', feedbackIncorrect = '', remarks = '') {
+function addQuestion(question = '', answers = '', purpose = '', type = '', difficultyLevel = 0, feedbackCorrect = '', feedbackIncorrect = '', remarks = '', deleteButton = true) {
     const questionsContainer = document.getElementById('questionsContainer');
     const questionsCount = document.getElementsByClassName('form-group border p-3 mb-3').length;
     const questionDiv = document.createElement('div');
@@ -216,6 +216,7 @@ function addQuestion(question = '', answers = '', purpose = '', type = '', diffi
 
     const answersDiv = document.createElement('div');
     answersDiv.className = 'mb-2';
+    answersDiv.id = `answers${questionsCount}`;
 
     for (let i = 0; i < 4; i++) {
         const answerDiv = document.createElement('div');
@@ -225,6 +226,7 @@ function addQuestion(question = '', answers = '', purpose = '', type = '', diffi
         correctAnswerInput.type = 'radio';
         correctAnswerInput.className = 'form-check-input mr-2'; // Set margin-right for spacing
         correctAnswerInput.name = `correct_answers[${questionsCount}]`; // Group radio buttons per question
+        correctAnswerInput.id = `correctAnswer${i}_${questionsCount}`;
         correctAnswerInput.value = i;
         correctAnswerInput.checked = answers ? answers[i].is_correct : false;
         answerDiv.appendChild(correctAnswerInput);
@@ -244,11 +246,15 @@ function addQuestion(question = '', answers = '', purpose = '', type = '', diffi
     const lastQuestion = document.getElementsByClassName('form-group border p-3 mb-3').length - 1;
     const removeButton = document.createElement('button');
     removeButton.type = 'button';
-    removeButton.className = 'btn btn-danger';
+    removeButton.className = 'btn btn-danger delete-button';
     removeButton.innerText = 'Remove Question';
     removeButton.onclick = () => {
-        questionsContainer.removeChild(questionDiv);
+        questionDiv.remove();
     };
+
+    if (!deleteButton) {
+        removeButton.style.display = 'none';
+    }
     questionDiv.appendChild(removeButton);
     //Append question after the lastQuestion
     questionsContainer.insertBefore(questionDiv, questionsContainer.children[lastQuestion]);
@@ -460,7 +466,9 @@ function createAndLoadTest() {
 function showCreateTestOptions() {
     const container = document.querySelector('.container');
 
+
     document.getElementById('csvFileInput').classList.add('d-none');
+    document.getElementById('createTest').style.display = 'none'; // Hide the "Create Test" button
     document.getElementById('testNameContainer').classList.remove('d-none');
     //document.getElementById('assignUsersContainer').classList.remove('d-none');
     document.querySelector('button[onclick="createAndLoadTest()"]').classList.add('d-none');
@@ -564,7 +572,7 @@ function fetchQuestions() {
 }
 
 //Create a function that fetches from fetch_questions_by_ids.php and creates questions with answers
-function fetchQuestionsByIds(questionIds) {
+function fetchQuestionsByIds(questionIds, deleteButton = true) {
     fetch(`../src/fetch_questions_by_ids.php?ids=${questionIds}`, {
         method: 'GET',
         headers: {
@@ -582,7 +590,8 @@ function fetchQuestionsByIds(questionIds) {
                     question.difficulty_level,
                     question.feedback_correct,
                     question.feedback_incorrect,
-                    question.remarks
+                    question.remarks,
+                    deleteButton
                 )
             });
         });
@@ -837,6 +846,7 @@ function editTest() {
     document.getElementById('export-buttons').innerHTML = ''; // Clear existing content
     document.getElementById('createTest').style.display = 'none'; // Hide the "Create Test" button
     document.getElementById('csvFileInput').style.display = 'none'; // Hide the CSV file input
+    document.getElementById('assignUsersContainer').style.display = 'none'; // Hide the assign users container
     document.getElementById('testNameContainer').classList.remove('d-none');
 
     var questionIds = [];
@@ -848,8 +858,9 @@ function editTest() {
         answerIds = data.questions.map(question => question.answers.map(answer => answer.id)).flat();
         document.getElementById('testName').value = data.testName;
 
-        fetchQuestionsByIds(questionIds);
+        fetchQuestionsByIds(questionIds, false);
     }).then(() => {
+
         // Add "Save Test" button and Delete Test button
         const saveButton = document.createElement('button');
         saveButton.type = 'button';

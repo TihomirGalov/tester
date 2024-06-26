@@ -17,7 +17,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     }
 
     // Check if user exists
-    $sql = "SELECT id, password FROM users WHERE nickname=?";
+    $sql = "SELECT id, password, can_create_test FROM users WHERE nickname=?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -31,6 +31,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
             $_SESSION['loggedIn'] = true;
             $_SESSION['username'] = $username;
             $_SESSION['user_id'] = $user['id'];
+            $_SESSION['can_create_test'] = $user['can_create_test'];
             // Redirect to index.html upon successful login
             header("Location: ../public/index.html");
         } else {

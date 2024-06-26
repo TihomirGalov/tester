@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 
             for ($j = 0; $j < 4; $j++) {
                 $is_correct = ($j == $correctAnswers[$i]) ? 1 : 0;
-                $questionAnswers[] = ['answer' => $answers[$i][$j], 'is_correct' => $is_correct, 'answer_id' => $answer_ids[$i][$j]];
+                $questionAnswers[] = ['answer' => $answers[$i][$j], 'is_correct' => $is_correct, 'answer_id' => $answer_ids[$i * 4 + $j]];
             }
 
             $questionsData[] = [
